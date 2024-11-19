@@ -6,7 +6,6 @@ import { signInStart, signInSuccess, signInFailure } from "../redux/userSlice";
 import OAuth from "../components/OAuth";
 import {login} from "../service/UserAPI"
 
-
 export default function SignIn() {
   const [formData, setFormData] = useState({});
   const { loading, error: errorMessage } = useSelector((state) => state.user);
@@ -18,17 +17,16 @@ export default function SignIn() {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
       return dispatch(signInFailure('Please fill all the fields'));
     }
+
     try {
       dispatch(signInStart());
       const res = await login(formData)
       const data = res.data;
-
 
       if (res.status !== 200) {
         dispatch(signInFailure(res.detail));
@@ -36,13 +34,20 @@ export default function SignIn() {
  
       if (res.status === 200) {
         dispatch(signInSuccess(data));
-        navigate('/');
+        if (data.role === 0){
+          navigate('/admin/dashboard?tab=overview');
+        }else if(data.role === 1){
+          navigate('/generaluser/dashboard?tab=upgrade-account');
+        }else if(data.role === 2){
+          navigate('/');
+        }else{
+          navigate('/trafficauthority/dashboard?tab=manage-traffic-status');
+        }
       }
     } catch (error) {
       dispatch(signInFailure(error.detail));
     }
   };
-
 
   return (
     <div className="min-h-screen flex items-center justify-center dark:bg-gray-900 dark:text-white">

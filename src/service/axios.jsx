@@ -4,11 +4,20 @@ const instance = axios.create({
   // baseURL: "http://127.0.0.1:8000",
 })
 
-
-instance.defaults.headers.common['Authorization'] = `Bearer ${JSON.parse(localStorage.getItem("persist:root"))}`;
 // Add a request interceptor
 instance.interceptors.request.use(function (config) {
     // Do something before request is sent
+    try {
+      const persistedData = JSON.parse(localStorage.getItem("persist:root"));
+      const user = persistedData ? JSON.parse(persistedData.user) : null;
+      const currentUser = user ? user.currentUser : null;
+      const token = currentUser ? currentUser.access_token : null;
+      if (token) {
+          config.headers['Authorization'] = `Bearer ${token}`;
+      }
+    } catch (error) {
+        console.error('Error parsing token from localStorage:', error);
+    }
     return config;
   }, function (error) {
     // Do something with request error

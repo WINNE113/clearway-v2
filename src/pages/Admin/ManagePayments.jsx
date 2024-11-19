@@ -1,7 +1,6 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import { FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import Swal from "sweetalert2";
 import { Button, Modal, TextInput, Label } from "flowbite-react";
 
 const ManagePayments = () => {
@@ -9,7 +8,10 @@ const ManagePayments = () => {
     const [openModalPackage, setOpenModalPackage] = useState(false);
     const [openModalUser, setOpenModalUser] = useState(false);
     const [isEditPackage, setIsEditPackage] = useState(false);
-
+    
+    const [isModalOpen, setIsModalOpen] = useState(false); 
+    const [selectedUid, setSelectedUid] = useState(null);
+    
     // Sample data
     const userDataTabs = [
         {
@@ -23,38 +25,6 @@ const ManagePayments = () => {
                     description: "Bao gồm các tính năng như phân tích dữ liệu giao thông chi tiết, dự báo lưu lượng giao thông, và tích hợp với các hệ thống quản lý giao thông khác. ",
                     timeOfPackage: 1,
                     priceOfPackage: 150,
-                },
-                {
-                    id: 2,
-                    createdDate: "20/11/2023",
-                    packageName: "Hàng quý",
-                    description: "Bao gồm các tính năng như phân tích dữ liệu giao thông chi tiết, dự báo lưu lượng giao thông, và tích hợp với các hệ thống quản lý giao thông khác. ",
-                    timeOfPackage: 1,
-                    priceOfPackage: 150.000,
-                },
-                {
-                    id: 3,
-                    createdDate: "20/11/2023",
-                    packageName: "Hàng năm",
-                    description: "Bao gồm các tính năng như phân tích dữ liệu giao thông chi tiết, dự báo lưu lượng giao thông, và tích hợp với các hệ thống quản lý giao thông khác. ",
-                    timeOfPackage: 1,
-                    priceOfPackage: 150,
-                },
-                {
-                    id: 4,
-                    createdDate: "20/11/2023",
-                    packageName: "Hàng tháng",
-                    description: "Bao gồm các tính năng như phân tích dữ liệu giao thông chi tiết, dự báo lưu lượng giao thông, và tích hợp với các hệ thống quản lý giao thông khác. ",
-                    timeOfPackage: 2,
-                    priceOfPackage: 150,
-                },
-                {
-                    id: 5,
-                    createdDate: "20/11/2023",
-                    packageName: "Hàng tháng",
-                    description: "Bao gồm các tính năng như phân tích dữ liệu giao thông chi tiết, dự báo lưu lượng giao thông, và tích hợp với các hệ thống quản lý giao thông khác. ",
-                    timeOfPackage: 5,
-                    priceOfPackage: 230.000,
                 }
             ]
         },
@@ -65,33 +35,6 @@ const ManagePayments = () => {
                 {
                     createdDate: "20/11/2023",
                     fullName: "Đặng duy bảo",
-                    email: "duybao@gmail.com",
-                    phoneNumber: "033201054",
-                    code: "434324234",
-                    nameOfPackage: "Hàng tháng",
-                    statusTransaction: "Hết hạn"
-                },
-                {
-                    createdDate: "20/11/2023",
-                    fullName: "Hồ chí cường",
-                    email: "chicuong@gmail.com",
-                    phoneNumber: "033655054",
-                    code: "434324544",
-                    nameOfPackage: "Hàng năm",
-                    statusTransaction: "Đang hoạt động"
-                },
-                {
-                    createdDate: "20/11/2023",
-                    fullName: "Đặng duy bảo 1",
-                    email: "duybao@gmail.com",
-                    phoneNumber: "033201054",
-                    code: "434324234",
-                    nameOfPackage: "Hàng tháng",
-                    statusTransaction: "Hết hạn"
-                },
-                {
-                    createdDate: "20/11/2023",
-                    fullName: "Đặng duy bảo 2",
                     email: "duybao@gmail.com",
                     phoneNumber: "033201054",
                     code: "434324234",
@@ -121,23 +64,15 @@ const ManagePayments = () => {
         setOpenModalUser(true);
     }
 
-    const handleDelete = (uid) => {
-        Swal.fire({
-            title: "Bạn có chắc chắn muốn xóa gói nâng cấp này?",
-            text: "Hành động này không thể hoàn tác!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Xóa",
-            cancelButtonText: "Hủy",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Proceed with deletion
-                Swal.fire("Đã xóa!", "Gói nâng cấp đã được xóa.", "success");
-            }
-        });
+    const handleDelete = (uid) => { 
+        setSelectedUid(uid); 
+        setIsModalOpen(true); 
     };
+    const confirmDelete = () => { 
+        console.log("Deleted package with ID:", selectedUid); 
+        setIsModalOpen(false); 
+    };
+
     return (
         <main className="mx-9 my-9">
             <div className=" bg-white rounded-lg shadow-md p-6">
@@ -166,37 +101,36 @@ const ManagePayments = () => {
                     ))}
                 </div>
                 <div className="overflow-x-auto">
-                    {activeTab === "upgradePackages" && (
-                        <table className="min-w-full bg-white">
-                            <thead>
-                                <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                                    <th className="py-2 px-2 text-left">ID</th>
-                                    <th className="py-2 px-2 text-left">Ngày tạo</th>
-                                    <th className="py-2 px-2 text-left">Tên gói nâng cấp</th>
-                                    <th className="py-2 px-2 text-left">Mô tả</th>
-                                    <th className="py-2 px-2 text-left">Thời gian nâng cấp</th>
-                                    <th className="py-2 px-2 text-left">Giá tiền</th>
-                                    <th className="py-2 px-2 text-left">Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody className="text-gray-950 text-sm font-light">
-                                {userDataTabs.find(tab => tab.value === activeTab).data?.map((pg) => (
-                                    <tr key={pg.id} className="border-b border-gray-200 hover:bg-gray-100">
-                                        <td className="py-1 px-2 text-left whitespace-nowrap">{pg.id}</td>
-                                        <td className="py-1 px-2 text-left whitespace-nowrap">{pg.createdDate}</td>
-                                        <td className="py-1 px-2 text-left whitespace-nowrap">{pg.packageName}</td>
-                                        <td className="py-1 px-2 text-left">{pg.description}</td>
-                                        <td className="py-1 px-2 text-left">{pg.timeOfPackage} Tháng</td>
-                                        <td className="py-1 px-2 text-left">{pg.priceOfPackage}</td>
-                                        <td className="py-1 px-2 flex space-x-4 justify-center items-center mt-5">
-                                            <button onClick={handleEditPackage} className="w-6 h-6 text-black"><FaRegEdit /></button>
-                                            <button onClick={() => handleDelete(pg.id)} className="w-6 h-6 text-red-600"><MdDelete /></button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
+                {activeTab === "upgradePackages" && ( 
+                    <table className="min-w-full bg-white"> 
+                        <thead> 
+                            <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal"> 
+                                <th className="py-2 px-2 text-left">ID</th> 
+                                <th className="py-2 px-2 text-left">Ngày tạo</th> 
+                                <th className="py-2 px-2 text-left">Tên gói nâng cấp</th> 
+                                <th className="py-2 px-2 text-left">Mô tả</th> 
+                                <th className="py-2 px-2 text-left">Thời gian nâng cấp</th> 
+                                <th className="py-2 px-2 text-left">Giá tiền</th> 
+                                <th className="py-2 px-2 text-left">Hành động</th> 
+                            </tr> 
+                        </thead> 
+                        <tbody className="text-gray-950 text-sm font-light"> 
+                            {userDataTabs.find(tab => tab.value === activeTab).data?.map((pg) => ( 
+                                <tr key={pg.id} className="border-b border-gray-200 hover:bg-gray-100"> 
+                                    <td className="py-1 px-2 text-left whitespace-nowrap">{pg.id}</td> 
+                                    <td className="py-1 px-2 text-left whitespace-nowrap">{pg.createdDate}</td> 
+                                    <td className="py-1 px-2 text-left whitespace-nowrap">{pg.packageName}</td> 
+                                    <td className="py-1 px-2 text-left">{pg.description}</td> 
+                                    <td className="py-1 px-2 text-left">{pg.timeOfPackage} Tháng</td> 
+                                    <td className="py-1 px-2 text-left">{pg.priceOfPackage}</td> 
+                                    <td className="py-1 px-2 flex space-x-4 justify-center items-center mt-5"> 
+                                    <button onClick={handleEditPackage} className="w-6 h-6 text-black"><FaRegEdit /></button> 
+                                    <button onClick={() => handleDelete(pg.id)} className="w-6 h-6 text-red-600"><MdDelete />
+                                    </button> 
+                                    </td> 
+                                </tr> ))} 
+                        </tbody> 
+                    </table> )}
                     {activeTab === "upgradeUsers" && (
                         <table className="min-w-full bg-white">
                             <thead>
@@ -357,6 +291,18 @@ const ManagePayments = () => {
                         </Button>
                     </div>
                 </Modal.Footer>
+            </Modal>
+            <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}> 
+                <Modal.Header> Bạn có chắc chắn muốn xóa gói nâng cấp này? </Modal.Header> 
+                <Modal.Body> 
+                    <div className="space-y-6"> 
+                        <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400"> Hành động này không thể hoàn tác! </p> 
+                    </div> 
+                </Modal.Body> 
+                <Modal.Footer> 
+                    <Button color="failure" onClick={confirmDelete}> Xóa </Button> 
+                    <Button color="gray" onClick={() => setIsModalOpen(false)}> Hủy </Button> 
+                </Modal.Footer> 
             </Modal>
         </main>
     )

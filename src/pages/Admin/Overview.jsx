@@ -1,4 +1,3 @@
-import Reactm, { useState } from 'react'
 import { BiSolidTrafficBarrier } from "react-icons/bi";
 import { CiSun } from "react-icons/ci";
 import { Link } from 'react-router-dom';
@@ -131,7 +130,7 @@ const Overview = () => {
                             <div className="bg-gray-100 rounded-lg shadow-md p-6 mb-5">
                                 <h2 className="text-2xl font-bold mb-4 flex items-center bord">
                                     Gửi thông báo
-                                    <MdOutlineCircleNotifications size={40} className="ml-2 text-gray-500 text-red-400" />
+                                    <MdOutlineCircleNotifications size={40} className="ml-2 text-gray-500" />
                                 </h2>
                                 <ul className="space-y-2">
                                     <li className="flex items-center p-2 bg-white text-blue-900 font-bold rounded shadow-md"><FaUsers className="mr-3" /> General User</li>

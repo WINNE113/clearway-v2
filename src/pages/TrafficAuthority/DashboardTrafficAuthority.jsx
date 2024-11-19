@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { DashSidebar, Header } from "../../components/index"
-import { ManageRoutes, ManageTrafficStatus, ManageCamera, ManageTrafficSigns } from "../index"
+import { ManageRoutes, ManageTrafficStatus, ManageCamera, ManageTrafficSigns, ManageReport } from "../index"
 
 export default function Dashboard() {
   const location = useLocation();
@@ -29,7 +29,7 @@ export default function Dashboard() {
           {/* Manage Traffic Sign... */}
           {tab === "manage-traffic-sign" && <ManageTrafficSigns />}
           {/* Manage Report... */}
-          {tab === "manage-report"}
+          {tab === "manage-report" && <ManageReport/>}
           {/* Manage Camera... */}
           {tab === "manage-camera" && <ManageCamera />}
         </div>

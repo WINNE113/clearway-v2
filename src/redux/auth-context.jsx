@@ -1,6 +1,6 @@
 import { useState, createContext, useEffect } from 'react';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
-import { db } from '../firebase';
+// import { db } from '../firebase';
 
 export const AuthContext = createContext({
   user: null,
@@ -47,18 +47,18 @@ const AuthContextProvider = (props) => {
 
 export default AuthContextProvider;
 
-export const addDocument = async (collectionName, data) => {
-  try {
-    const docRef = ref(db, `${collectionName}/${data.uid}`);
-    await set(docRef, {
-      ...data,
-      createdAt: serverTimestamp()
-    });
-    console.log(`Document written with ID: ${data.uid}`);
-  } catch (error) {
-    console.error('Error adding document:', error);
-  }
-};
+// export const addDocument = async (collectionName, data) => {
+//   try {
+//     const docRef = ref(db, `${collectionName}/${data.uid}`);
+//     await set(docRef, {
+//       ...data,
+//       createdAt: serverTimestamp()
+//     });
+//     console.log(`Document written with ID: ${data.uid}`);
+//   } catch (error) {
+//     console.error('Error adding document:', error);
+//   }
+// };
 
 export const generateKeywords = (displayName) => {
   const name = displayName.split(' ').filter(word => word);

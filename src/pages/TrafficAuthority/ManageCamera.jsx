@@ -1,33 +1,26 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { IoMdAdd } from "react-icons/io";
 import { FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { Pagination, Button, Modal, TextInput, Label, Dropdown } from "flowbite-react";
-import Swal from "sweetalert2";
-
 
 const ManageCameras = () => {
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedImage, setSelectedImage] = useState(null);
     const [cameraStatus, setCameraStatus] = useState("");
-
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedRid, setSelectedRid] = useState(null);
     const [openModal, setOpenModal] = useState(false);
-
     const [isEdit, setIsEdit] = useState(false);
 
     const onPageChange = (page) => setCurrentPage(page);
-
     const handleAddNew = () => {
         setIsEdit(false);
         setOpenModal(true);
     };
-
     const handleEdit = () => {
         setIsEdit(true);
         setOpenModal(true);
     };
-
     const handleDropdownSelect = (status) => {
         setCameraStatus(status);
     };
@@ -64,22 +57,16 @@ const ManageCameras = () => {
 
 
     const handleDelete = (rid) => {
-        Swal.fire({
-            title: "Bạn có chắc chắn muốn xóa biển báo này?",
-            text: "Hành động này không thể hoàn tác!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Xóa",
-            cancelButtonText: "Hủy",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Proceed with deletion
-                Swal.fire("Đã xóa!", "Biển báo đã được xóa.", "success");
-            }
-        });
+        setSelectedRid(rid);
+        setIsModalOpen(true);
     };
+
+    const confirmDelete = () => {
+        // Proceed with deletion
+        console.log("Deleted traffic sign with ID:", selectedRid);
+        setIsModalOpen(false);
+    };
+    
     return (
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
             <div className="grid grid-cols-3 gap-6">
@@ -234,7 +221,26 @@ const ManageCameras = () => {
                     </div>
                 </Modal.Footer>
             </Modal>
-
+            <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                <Modal.Header>
+                    Bạn có chắc chắn muốn xóa camera này?
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="space-y-6">
+                        <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
+                            Hành động này không thể hoàn tác!
+                        </p>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button color="failure" onClick={confirmDelete}>
+                        Xóa
+                    </Button>
+                    <Button color="gray" onClick={() => setIsModalOpen(false)}>
+                        Hủy
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </main>
     )
 }

@@ -1,13 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import { FaRegEdit } from "react-icons/fa";
 import { Button, Modal, TextInput, Label } from "flowbite-react";
-import { MdDelete } from "react-icons/md";
-import Swal from "sweetalert2";
+
 const ManageRoutes = () => {
     const [openModal, setOpenModal] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
-
 
     const routers = [
         {
@@ -62,23 +60,6 @@ const ManageRoutes = () => {
         setOpenModal(true);
     };
 
-    const handleDelete = (rid) => {
-        Swal.fire({
-            title: "Bạn có chắc chắn muốn xóa tuyến đường này?",
-            text: "Hành động này không thể hoàn tác!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Xóa",
-            cancelButtonText: "Hủy",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Proceed with deletion
-                Swal.fire("Đã xóa!", "Tuyến đường đã được xóa.", "success");
-            }
-        });
-    };
     return (
         <main className="mx-9 my-9">
             <div className="grid">
@@ -142,7 +123,6 @@ const ManageRoutes = () => {
                                             <td className={`py-3 px-6 text-left ${router.trafficStatue === "Tắt đường" ? "text-red-700" : ""}`}>{router.trafficStatue}</td>
                                             <td className="py-3 px-6 text-left flex flex-row space-x-4">
                                                 <FaRegEdit onClick={handleEdit} size={20} />
-                                                <MdDelete className="text-red-500" onClick={() => handleDelete(router.id)} size={20} />
                                             </td>
                                         </tr>
                                     ))}

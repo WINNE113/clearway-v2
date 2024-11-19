@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { DashSidebar } from "../../components/index"
-import { ManageTrafficStatus } from "../index"
+import { DashSidebar, Header } from "../../components/index"
+import { TrafficStatistics } from "../index";
+import ProfileComporate from "./ProfileComporate";
 
 export default function Dashboard() {
   const location = useLocation();
@@ -25,9 +26,9 @@ export default function Dashboard() {
           {/* Home... */}
           {tab === "home"}
           {/* Profile... */}
-          {tab === "profile"}
+          {tab === "profile" && <ProfileComporate />}
           {/* Traffic Statistics... */}
-          {tab === "traffic-statistics"}
+          {tab === "traffic-statistics" && <TrafficStatistics />}
         </div>
       </div>
     </div>

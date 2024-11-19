@@ -1,10 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import { FaRegEdit } from "react-icons/fa";
 import { Button, Modal, TextInput, Label, Dropdown, Pagination } from "flowbite-react";
-import { MdDelete } from "react-icons/md";
-import Swal from "sweetalert2";
-
 
 const ManageTrafficStatus = () => {
     const [openModal, setOpenModal] = useState(false);
@@ -84,23 +81,6 @@ const ManageTrafficStatus = () => {
         setTrafficStatus(status);
     };
 
-    const handleDelete = (rid) => {
-        Swal.fire({
-            title: "Bạn có chắc chắn muốn tình trạng giao thông này?",
-            text: "Hành động này không thể hoàn tác!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Xóa",
-            cancelButtonText: "Hủy",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Proceed with deletion
-                Swal.fire("Đã xóa!", "Tình trạng giao thông đã được xóa.", "success");
-            }
-        });
-    };
     return (
         <main className="mx-9 my-9">
             <div className="grid">
@@ -146,7 +126,6 @@ const ManageTrafficStatus = () => {
                                             <td className="py-3 px-6 text-left">{router.airyTime}p</td>
                                             <td className="py-3 px-6 text-left flex space-x-4">
                                                 <FaRegEdit onClick={handleEdit} size={20} />
-                                                <MdDelete className="text-red-500" onClick={() => handleDelete(router.id)} size={20} />
                                             </td>
                                         </tr>
                                     ))}
@@ -255,7 +234,6 @@ const ManageTrafficStatus = () => {
                     </div>
                 </Modal.Footer>
             </Modal>
-
         </main>
     )
 }

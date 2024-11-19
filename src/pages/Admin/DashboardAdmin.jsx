@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { DashSidebar, Header } from "../../components/index"
-import { ManageUser, ManageRoutes, ManageTrafficStatus, ManageCamera, ManageTrafficSigns, ManagePayments } from "../index"
+import { ManageUser, ManageRoutes, ManageTrafficStatus, ManageCamera, ManageNotification, ManageReport, ManageTrafficSigns, ManagePayments,} from "../index"
 import Overview from "./Overview";
+
 
 export default function Dashboard() {
   const location = useLocation();
@@ -22,25 +23,25 @@ export default function Dashboard() {
       </div>
       <div className="col-span-10">
         <div className="flex-row gap-2">
-          <Header />
+          <Header/>
           {/* Overview... */}
-          {tab === "overview" && <Overview />}
+          {tab === "overview" && <Overview/>}
           {/* Manage User... */}
-          {tab === "manage-user" && <ManageUser />}
+          {tab === "manage-user" && <ManageUser/>}
           {/* Manage Traffic Status... */}
-          {tab === "manage-traffic-status" && <ManageTrafficStatus />}
+          {tab === "manage-traffic-status" && <ManageTrafficStatus/>}
           {/* Manage Traffic Route... */}
-          {tab === "manage-traffic-route" && <ManageRoutes />}
+          {tab === "manage-traffic-route" && <ManageRoutes/>}
           {/* Manage Traffic Sign... */}
-          {tab === "manage-traffic-sign" && <ManageTrafficSigns />}
+          {tab === "manage-traffic-sign" && <ManageTrafficSigns/>}
           {/* Manage Report... */}
-          {tab === "manage-report"}
+          {tab === "manage-report" && <ManageReport/>}
           {/* Manage Camera... */}
-          {tab === "manage-camera" && <ManageCamera />}
+          {tab === "manage-camera" && <ManageCamera/>}
           {/* Manage Notification... */}
-          {tab === "manage-notification"}
+          {tab === "manage-notification" && <ManageNotification/>}
           {/* Manage Payment... */}
-          {tab === "manage-payment" && <ManagePayments />}
+          {tab === "manage-payment" && <ManagePayments/>}
         </div>
       </div>
     </div>
