@@ -31,7 +31,7 @@ export default function App() {
         <Route element={<OnlyTrafficAuthority />}>
           {/* Trang của bộ giao thông */}
           <Route path="/trafficauthority/dashboard" element={<DashboardTrafficAuthority />}></Route>
-          <Route path="/profileadmin" element={<ProfileAdmin />}></Route>
+          <Route path="/profiletraffic" element={<ProfileAdmin />}></Route>
         </Route>
         <Route element={<OnlyAdmin />}>
           {/* Trang của admin */}

@@ -3,12 +3,35 @@ import { MdEmail } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { IoCallSharp } from "react-icons/io5";
 import { Button, Modal, TextInput, Pagination, Label, Textarea } from "flowbite-react";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getusers } from '../../service/UserAPI';
 
 const ManageNotification = () => {
     const [openModal, setOpenModal] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [users, setUsers] = useState(null);
+    const [activeTab, setActiveTab] = useState(1);
+    const [message, setMessage] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const onPageChange = (page) => setCurrentPage(page);
+    const [usersPerPage] = useState(10);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await getusers();
+                setUsers(response.data.users);
+            } catch (error) {
+                setMessage(`Lỗi lấy dữ liệu người dùng ${error}`)
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchUsers();
+    }, []);
+
+    const userrole = users ? users.filter(user => user.role === activeTab) : [];
+    const pageCount = Math.ceil(userrole.length / usersPerPage);
+    const onPageChange = (page) => { setCurrentPage(page); };
     const userDataTabs = [
         {
             value: "generalUser",
@@ -79,7 +102,15 @@ const ManageNotification = () => {
                                 </div>
                             ))}
                             <div className="flex items-center mt-3" style={{ justifyContent: 'center', display: 'flex' }}>
-                            <Pagination currentPage={currentPage} totalPages={100} onPageChange={onPageChange} />
+                            <Pagination
+                                    layout="pagination"
+                                    currentPage={currentPage}
+                                    totalPages={pageCount}
+                                    onPageChange={onPageChange}
+                                    previousLabel="Trước"
+                                    nextLabel="Sau"
+                                    showIcons
+                                />
                             </div>
                         </div>
                         <div className="flex items-center mt-3" style={

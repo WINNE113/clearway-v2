@@ -9,11 +9,13 @@ import { signout } from "../service/UserAPI.jsx";
 export default function Header() {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
-
-
+  console.log(currentUser)
   const navigate = useNavigate();
-
-
+  const rolePaths = {
+    0: "/profileadmin?tab=profile",
+    3: "/profiletraffic?tab=profile"
+  };
+  const currentPath = rolePaths[currentUser?.role];
   const handleChatClick = () => {
     if (currentUser && (currentUser.isPremium || currentUser.isAdmin)) {
       navigate("/rooms");
@@ -21,7 +23,6 @@ export default function Header() {
       navigate("/payment");
     }
   };
-
 
   const handleSignout = async () => {
     try {
@@ -53,9 +54,11 @@ export default function Header() {
                 <span className="block text-sm">@{currentUser.username}</span>
                 <span className="block text-sm font-medium truncate">@{currentUser.email}</span>
               </Dropdown.Header>
-              <Link to="/profileadmin?tab=profile">
-                {currentUser.isAdmin ? <Dropdown.Item>Dashboard</Dropdown.Item> : <Dropdown.Item>Setting</Dropdown.Item>}
-              </Link>
+              {currentPath && (
+                <Link to={currentPath}>
+                  {currentUser.role == 0? <Dropdown.Item>Dashboard</Dropdown.Item> : <Dropdown.Item>Setting</Dropdown.Item>}
+                </Link>
+              )}
               <Dropdown.Divider />
               <Dropdown.Item onClick={handleSignout}>Sign out</Dropdown.Item>
             </Dropdown>

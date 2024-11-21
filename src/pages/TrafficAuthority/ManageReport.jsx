@@ -1,11 +1,31 @@
-import { useState } from "react";
 import { Modal, TextInput, Pagination, Button, Label, Textarea, ToggleSwitch } from "flowbite-react";
+import { getusers } from "../../service/UserAPI";
+import { useEffect, useState } from "react";
 const ManageReport = () => {
     const [switch1, setSwitch1] = useState(false);
     const [switch2, setSwitch2] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [users, setUsers] = useState(null);
+    const [message, setMessage] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const onPageChange = (page) => setCurrentPage(page);
-    // Sample data
+    const [usersPerPage] = useState(10);
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await getusers();
+                setUsers(response.data.users);
+            } catch (error) {
+                setMessage(`Lỗi lấy dữ liệu người dùng ${error}`)
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchUsers();
+    }, []);
+
+    const userrole = users ? users.filter(user => user.role === activeTab) : [];
+    const pageCount = Math.ceil(userrole.length / usersPerPage);
+    const onPageChange = (page) => { setCurrentPage(page); };
     const userDataTabs = [
         {
             value: "generalUser",
@@ -89,7 +109,15 @@ const ManageReport = () => {
                             </table>
                         </div>
                         <div className="flex items-center mt-3" style={{ justifyContent: 'center', display: 'flex' }}>
-                            <Pagination currentPage={currentPage} totalPages={100} onPageChange={onPageChange} />
+                        <Pagination
+                                layout="pagination"
+                                currentPage={currentPage}
+                                totalPages={pageCount}
+                                onPageChange={onPageChange}
+                                previousLabel="Trước"
+                                nextLabel="Sau"
+                                showIcons
+                            />
                         </div>
                     </div>
                 </div>

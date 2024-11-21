@@ -82,9 +82,9 @@ export default function HeaderGeneralUser() {
                   </Link>
                 </>
               )}
-              {currentUser?.isAdmin && (
+              {currentUser?.role == 0 && (
                 <>
-                  <Link to="/dashboard">
+                  <Link to="admin/dashboard?tab=overview">
                     <Dropdown.Item>Dashboard</Dropdown.Item>
                   </Link>
                 </>

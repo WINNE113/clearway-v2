@@ -39,7 +39,7 @@ export default function SignIn() {
         }else if(data.role === 1){
           navigate('/generaluser/dashboard?tab=upgrade-account');
         }else if(data.role === 2){
-          navigate('/');
+          navigate('/profilecomporate');
         }else{
           navigate('/trafficauthority/dashboard?tab=manage-traffic-status');
         }
