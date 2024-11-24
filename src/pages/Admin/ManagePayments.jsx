@@ -1,32 +1,35 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { Button, Modal, TextInput, Label } from "flowbite-react";
+import { getPrimiumPackages, createPrimiumPackage } from "../../service/PaymentAPI";
 
 const ManagePayments = () => {
 
+    const [loading, setLoading] = useState(true);
     const [openModalPackage, setOpenModalPackage] = useState(false);
     const [openModalUser, setOpenModalUser] = useState(false);
     const [isEditPackage, setIsEditPackage] = useState(false);
-    
-    const [isModalOpen, setIsModalOpen] = useState(false); 
+    const [primiumPackage, setPrimiumPackage] = useState([]);
+    const [showMessageModal, setShowMessageModal] = useState(false);
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedUid, setSelectedUid] = useState(null);
-    
+    const [message, setMessage] = useState(null);
+
+    const [packageData, setPackageData] = useState({
+        namePackage: "",
+        description: "",
+        price: 0,
+        timePackage: 1,
+    });
+
     // Sample data
     const userDataTabs = [
         {
             value: "upgradePackages",
             label: "Danh sách các gói nâng cấp",
-            data: [
-                {
-                    id: 1,
-                    createdDate: "20/11/2023",
-                    packageName: "Hàng tháng",
-                    description: "Bao gồm các tính năng như phân tích dữ liệu giao thông chi tiết, dự báo lưu lượng giao thông, và tích hợp với các hệ thống quản lý giao thông khác. ",
-                    timeOfPackage: 1,
-                    priceOfPackage: 150,
-                }
-            ]
+            data: primiumPackage
         },
         {
             value: "upgradeUsers",
@@ -46,6 +49,13 @@ const ManagePayments = () => {
     ]
     const [activeTab, setActiveTab] = useState("upgradePackages")
 
+    const handleChange = (e) => {
+        const { id, value } = e.target;
+        setPackageData((prev) => ({
+            ...prev,
+            [id]: value,
+        }));
+    };
     const handleTabChange = (tabValue) => {
         setActiveTab(tabValue)
     }
@@ -64,14 +74,61 @@ const ManagePayments = () => {
         setOpenModalUser(true);
     }
 
-    const handleDelete = (uid) => { 
-        setSelectedUid(uid); 
-        setIsModalOpen(true); 
+    const handleDelete = (uid) => {
+        setSelectedUid(uid);
+        setIsModalOpen(true);
     };
-    const confirmDelete = () => { 
-        console.log("Deleted package with ID:", selectedUid); 
-        setIsModalOpen(false); 
+    const confirmDelete = () => {
+        console.log("Deleted package with ID:", selectedUid);
+        setIsModalOpen(false);
     };
+
+
+    const handleSubmitPackage = async () => {
+        try {
+            console.log("Come to create")
+            console.log("Package data" + JSON.stringify(packageData));
+            const formData = {
+                name_package: packageData.namePackage,
+                description: packageData.description,
+                time_package: packageData.timePackage,
+                price: packageData.price
+            }
+            const res = await createPrimiumPackage(formData);
+            console.log(JSON.stringify(res));
+        } catch (error) {
+            setMessage(`Đã xảy ra lỗi không mong muốn. Vui lòng thử lại. ${error}`);
+            setShowMessageModal(true);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const handleUpdatePackage = async () => {
+        try {
+            console.log("Come to update")
+        } catch (error) {
+            setMessage(`Đã xảy ra lỗi không mong muốn. Vui lòng thử lại. ${error}`);
+            setShowMessageModal(true);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        const fetchPrimiumPackage = async () => {
+            try {
+                const response = await getPrimiumPackages();
+                setPrimiumPackage(response.data);
+            } catch (error) {
+                setMessage(`Lỗi lấy dữ liệu primium package ${error}`)
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPrimiumPackage();
+    }, []);
+
 
     return (
         <main className="mx-9 my-9">
@@ -101,36 +158,38 @@ const ManagePayments = () => {
                     ))}
                 </div>
                 <div className="overflow-x-auto">
-                {activeTab === "upgradePackages" && ( 
-                    <table className="min-w-full bg-white"> 
-                        <thead> 
-                            <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal"> 
-                                <th className="py-2 px-2 text-left">ID</th> 
-                                <th className="py-2 px-2 text-left">Ngày tạo</th> 
-                                <th className="py-2 px-2 text-left">Tên gói nâng cấp</th> 
-                                <th className="py-2 px-2 text-left">Mô tả</th> 
-                                <th className="py-2 px-2 text-left">Thời gian nâng cấp</th> 
-                                <th className="py-2 px-2 text-left">Giá tiền</th> 
-                                <th className="py-2 px-2 text-left">Hành động</th> 
-                            </tr> 
-                        </thead> 
-                        <tbody className="text-gray-950 text-sm font-light"> 
-                            {userDataTabs.find(tab => tab.value === activeTab).data?.map((pg) => ( 
-                                <tr key={pg.id} className="border-b border-gray-200 hover:bg-gray-100"> 
-                                    <td className="py-1 px-2 text-left whitespace-nowrap">{pg.id}</td> 
-                                    <td className="py-1 px-2 text-left whitespace-nowrap">{pg.createdDate}</td> 
-                                    <td className="py-1 px-2 text-left whitespace-nowrap">{pg.packageName}</td> 
-                                    <td className="py-1 px-2 text-left">{pg.description}</td> 
-                                    <td className="py-1 px-2 text-left">{pg.timeOfPackage} Tháng</td> 
-                                    <td className="py-1 px-2 text-left">{pg.priceOfPackage}</td> 
-                                    <td className="py-1 px-2 flex space-x-4 justify-center items-center mt-5"> 
-                                    <button onClick={handleEditPackage} className="w-6 h-6 text-black"><FaRegEdit /></button> 
-                                    <button onClick={() => handleDelete(pg.id)} className="w-6 h-6 text-red-600"><MdDelete />
-                                    </button> 
-                                    </td> 
-                                </tr> ))} 
-                        </tbody> 
-                    </table> )}
+                    {activeTab === "upgradePackages" && (
+                        <table className="min-w-full bg-white">
+                            <thead>
+                                <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                                    <th className="py-2 px-2 text-left">ID</th>
+                                    <th className="py-2 px-2 text-left">Ngày tạo</th>
+                                    <th className="py-2 px-2 text-left">Ngày cập nhật</th>
+                                    <th className="py-2 px-2 text-left">Tên gói nâng cấp</th>
+                                    <th className="py-2 px-2 text-left">Mô tả</th>
+                                    <th className="py-2 px-2 text-left">Thời gian nâng cấp</th>
+                                    <th className="py-2 px-2 text-left">Giá tiền</th>
+                                    <th className="py-2 px-2 text-left">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody className="text-gray-950 text-sm font-light">
+                                {userDataTabs.find(tab => tab.value === activeTab).data?.map((pg) => (
+                                    <tr key={pg._id} className="border-b border-gray-200 hover:bg-gray-100">
+                                        <td className="py-1 px-2 text-left whitespace-nowrap">{pg._id}</td>
+                                        <td className="py-1 px-2 text-left whitespace-nowrap">{pg.created_at}</td>
+                                        <td className="py-1 px-2 text-left whitespace-nowrap">{pg.updated_at}</td>
+                                        <td className="py-1 px-2 text-left whitespace-nowrap">{pg.name_package}</td>
+                                        <td className="py-1 px-2 text-left">{pg.description}</td>
+                                        <td className="py-1 px-2 text-left">{pg.time_package} Tháng</td>
+                                        <td className="py-1 px-2 text-left">{pg.price}</td>
+                                        <td className="py-1 px-2 flex space-x-4 justify-center items-center mt-5">
+                                            <button onClick={handleEditPackage} className="w-6 h-6 text-black"><FaRegEdit /></button>
+                                            <button onClick={() => handleDelete(pg.id)} className="w-6 h-6 text-red-600"><MdDelete />
+                                            </button>
+                                        </td>
+                                    </tr>))}
+                            </tbody>
+                        </table>)}
                     {activeTab === "upgradeUsers" && (
                         <table className="min-w-full bg-white">
                             <thead>
@@ -180,15 +239,19 @@ const ManagePayments = () => {
                                     <TextInput
                                         id="namePackage"
                                         placeholder="Nhập tên gói nâng cấp"
+                                        value={packageData.namePackage}
+                                        onChange={handleChange}
                                     />
                                 </div>
                                 <div>
-                                    <Label htmlFor="timeOfPackage" value="Thời gian gói nâng cấp" />
+                                    <Label htmlFor="timePackage" value="Thời gian gói nâng cấp" />
                                     <TextInput
-                                        id="timeOfPackage"
+                                        id="timePackage"
                                         placeholder="Nhập thời gian gói nâng cấp"
                                         type="number"
                                         min="1"
+                                        value={packageData.timePackage}
+                                        onChange={handleChange}
                                     />
                                 </div>
                             </div>
@@ -200,22 +263,26 @@ const ManagePayments = () => {
                                         placeholder="Nhập giá tiền"
                                         type="number"
                                         min="0"
+                                        value={packageData.price}
+                                        onChange={handleChange}
                                     />
                                 </div>
                             </div>
                         </div>
                         <div className='mt-5'>
-                            <Label htmlFor="discription" value="Mô tả gói nâng cấp" />
+                            <Label htmlFor="description" value="Mô tả gói nâng cấp" />
                             <TextInput
-                                id="discription"
+                                id="description"
                                 placeholder="Nhập mô tả"
+                                value={packageData.description}
+                                onChange={handleChange}
                             />
                         </div>
                     </form>
                 </Modal.Body>
                 <Modal.Footer>
                     <div className="flex items-center justify-center space-x-5">
-                        <Button onClick={() => setOpenModalPackage(false)}>{isEditPackage ? "Update" : "Create"}</Button>
+                        <Button onClick={isEditPackage ? handleUpdatePackage : handleSubmitPackage}>{isEditPackage ? "cập nhật" : "Tạo"}</Button>
                         <Button className="bg-red-500 text-white" onClick={() => setOpenModalPackage(false)}>
                             Cancel
                         </Button>
@@ -292,17 +359,32 @@ const ManagePayments = () => {
                     </div>
                 </Modal.Footer>
             </Modal>
-            <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}> 
-                <Modal.Header> Bạn có chắc chắn muốn xóa gói nâng cấp này? </Modal.Header> 
-                <Modal.Body> 
-                    <div className="space-y-6"> 
-                        <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400"> Hành động này không thể hoàn tác! </p> 
-                    </div> 
-                </Modal.Body> 
-                <Modal.Footer> 
-                    <Button color="failure" onClick={confirmDelete}> Xóa </Button> 
-                    <Button color="gray" onClick={() => setIsModalOpen(false)}> Hủy </Button> 
-                </Modal.Footer> 
+            <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                <Modal.Header> Bạn có chắc chắn muốn xóa gói nâng cấp này? </Modal.Header>
+                <Modal.Body>
+                    <div className="space-y-6">
+                        <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400"> Hành động này không thể hoàn tác! </p>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button color="failure" onClick={confirmDelete}> Xóa </Button>
+                    <Button color="gray" onClick={() => setIsModalOpen(false)}> Hủy </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showMessageModal} onClose={() => setShowMessageModal(false)} popup size='md'>
+                <Modal.Header />
+                <Modal.Body>
+                    <div className='text-center'>
+                        <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-400'>
+                            {message}
+                        </h3>
+                        <div className='flex justify-center gap-4'>
+                            <Button color='gray' onClick={() => setShowMessageModal(false)}>
+                                Ok
+                            </Button>
+                        </div>
+                    </div>
+                </Modal.Body>
             </Modal>
         </main>
     )

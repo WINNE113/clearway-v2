@@ -9,7 +9,6 @@ import { signout } from "../service/UserAPI.jsx";
 export default function Header() {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
-  console.log(currentUser)
   const navigate = useNavigate();
   const rolePaths = {
     0: "/profileadmin?tab=profile",
