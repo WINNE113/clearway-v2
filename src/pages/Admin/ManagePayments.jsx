@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { Button, Modal, TextInput, Label } from "flowbite-react";
-import { getPrimiumPackages, createPrimiumPackage } from "../../service/PaymentAPI";
+import { getPrimiumPackages, createPrimiumPackage, updatePrimiumPackage, deletePrimiumPackage } from "../../service/PaymentAPI";
 
 const ManagePayments = () => {
 
@@ -18,6 +18,7 @@ const ManagePayments = () => {
     const [message, setMessage] = useState(null);
 
     const [packageData, setPackageData] = useState({
+        id: "",
         namePackage: "",
         description: "",
         price: 0,
@@ -65,8 +66,15 @@ const ManagePayments = () => {
         setOpenModalPackage(true);
     };
 
-    const handleEditPackage = () => {
+    const handleEditPackage = (packageItem) => {
         setIsEditPackage(true);
+        setPackageData({
+            id: packageItem._id,
+            namePackage: packageItem.name_package,
+            description: packageItem.description,
+            price: packageItem.price,
+            timePackage: extractDays(packageItem.time_package),
+        });
         setOpenModalPackage(true);
     };
 
@@ -78,24 +86,39 @@ const ManagePayments = () => {
         setSelectedUid(uid);
         setIsModalOpen(true);
     };
-    const confirmDelete = () => {
-        console.log("Deleted package with ID:", selectedUid);
-        setIsModalOpen(false);
+
+    const confirmDelete = async () => {
+        try {
+            const res = await deletePrimiumPackage(selectedUid);
+            setIsModalOpen(false);
+            fetchPrimiumPackage();
+        } catch (error) {
+            setMessage(`Đã xảy ra lỗi không mong muốn. Vui lòng thử lại. ${error}`);
+            setShowMessageModal(true);
+        } finally {
+            setLoading(false);
+        }
+
+    };
+
+    const extractDays = (timeString) => {
+        if (!timeString) return "";
+        const daysPart = timeString.split(" ")[0];
+        return daysPart;
     };
 
 
     const handleSubmitPackage = async () => {
         try {
-            console.log("Come to create")
-            console.log("Package data" + JSON.stringify(packageData));
             const formData = {
                 name_package: packageData.namePackage,
                 description: packageData.description,
-                time_package: packageData.timePackage,
-                price: packageData.price
+                time_package: parseInt(packageData.timePackage),
+                price: parseInt(packageData.price)
             }
             const res = await createPrimiumPackage(formData);
-            console.log(JSON.stringify(res));
+            setOpenModalPackage(false);
+            fetchPrimiumPackage();
         } catch (error) {
             setMessage(`Đã xảy ra lỗi không mong muốn. Vui lòng thử lại. ${error}`);
             setShowMessageModal(true);
@@ -106,7 +129,13 @@ const ManagePayments = () => {
 
     const handleUpdatePackage = async () => {
         try {
-            console.log("Come to update")
+            const formData = {
+                time_package: parseInt(packageData.timePackage),
+                price: parseInt(packageData.price)
+            }
+            const res = await updatePrimiumPackage(formData, packageData.id);
+            setOpenModalPackage(false);
+            fetchPrimiumPackage();
         } catch (error) {
             setMessage(`Đã xảy ra lỗi không mong muốn. Vui lòng thử lại. ${error}`);
             setShowMessageModal(true);
@@ -115,17 +144,18 @@ const ManagePayments = () => {
         }
     }
 
+    const fetchPrimiumPackage = async () => {
+        try {
+            const response = await getPrimiumPackages();
+            setPrimiumPackage(response.data);
+        } catch (error) {
+            setMessage(`Lỗi lấy dữ liệu primium package ${error}`)
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchPrimiumPackage = async () => {
-            try {
-                const response = await getPrimiumPackages();
-                setPrimiumPackage(response.data);
-            } catch (error) {
-                setMessage(`Lỗi lấy dữ liệu primium package ${error}`)
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchPrimiumPackage();
     }, []);
 
@@ -180,11 +210,11 @@ const ManagePayments = () => {
                                         <td className="py-1 px-2 text-left whitespace-nowrap">{pg.updated_at}</td>
                                         <td className="py-1 px-2 text-left whitespace-nowrap">{pg.name_package}</td>
                                         <td className="py-1 px-2 text-left">{pg.description}</td>
-                                        <td className="py-1 px-2 text-left">{pg.time_package} Tháng</td>
+                                        <td className="py-1 px-2 text-left">{extractDays(pg.time_package)} Ngày</td>
                                         <td className="py-1 px-2 text-left">{pg.price}</td>
                                         <td className="py-1 px-2 flex space-x-4 justify-center items-center mt-5">
-                                            <button onClick={handleEditPackage} className="w-6 h-6 text-black"><FaRegEdit /></button>
-                                            <button onClick={() => handleDelete(pg.id)} className="w-6 h-6 text-red-600"><MdDelete />
+                                            <button onClick={() => handleEditPackage(pg)} className="w-6 h-6 text-black"><FaRegEdit /></button>
+                                            <button onClick={() => handleDelete(pg._id)} className="w-6 h-6 text-red-600"><MdDelete />
                                             </button>
                                         </td>
                                     </tr>))}
@@ -241,6 +271,7 @@ const ManagePayments = () => {
                                         placeholder="Nhập tên gói nâng cấp"
                                         value={packageData.namePackage}
                                         onChange={handleChange}
+                                        readOnly={isEditPackage}
                                     />
                                 </div>
                                 <div>
@@ -276,6 +307,7 @@ const ManagePayments = () => {
                                 placeholder="Nhập mô tả"
                                 value={packageData.description}
                                 onChange={handleChange}
+                                readOnly={isEditPackage}
                             />
                         </div>
                     </form>
