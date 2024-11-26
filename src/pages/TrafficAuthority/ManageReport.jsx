@@ -1,7 +1,8 @@
 import { Modal, TextInput, Pagination, Button, Label, Textarea, ToggleSwitch } from "flowbite-react";
 import { getusers } from "../../service/UserAPI";
 import { useEffect, useState } from "react";
-const ManageReport = () => {
+    const ManageReport = () => {
+    const [activeTab] = useState("generalUser")
     const [switch1, setSwitch1] = useState(false);
     const [switch2, setSwitch2] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -70,7 +71,7 @@ const ManageReport = () => {
 
     const [openModal, setOpenModal] = useState(false);
     const [openModalNguoiDung, setOpenModalNguoiDung] = useState(false);
-    const [activeTab] = useState("generalUser")
+    
 
     return (
         <main className="mx-9 my-9">

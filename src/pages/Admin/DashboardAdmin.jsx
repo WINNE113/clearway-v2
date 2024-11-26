@@ -17,7 +17,7 @@ export default function Dashboard() {
   }, [location.search]);
   return (
     <div className="min-h-screen grid grid-cols-12 bg-slate-300">
-      <div className="w-full col-span-2">
+      <div className="w-full col-span-2 h-full">
         {/* Sidebar */}
         <DashSidebar />
       </div>
