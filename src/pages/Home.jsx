@@ -17,7 +17,7 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="min-h-screen !bg-gradient-to-b from-[#63E72E] to-[#1F261C]">
+    <div className="min-h-screen !bg-gradient-to-b from-[#4284EF] to-[#4284EF]">
       <HeaderGeneralUser />
       <main className="container mx-auto px-4 py-8 md:py-14">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
@@ -31,10 +31,11 @@ export default function Home() {
             <p className="text-4xl md:text-5xl font-bold mb-4 text-white">
               see anytime! <FaCar className="inline-block text-black" />
             </p>
-            <Button className="bg-[#256DC0] text-white" size="xl">Download</Button>
+            <Button className="bg-[#3BC922] text-white" size="xl">Download</Button>
           </div>
           <div className="relative">
             <img className="absolute bottom-0" src="/public/hexagon.svg" />
+            <img className="absolute top-0 w-96" src="/public/hexagon.svg" />
           </div>
           <div className="flex justify-center mr-32 md:justify-end space-x-4">
             <img

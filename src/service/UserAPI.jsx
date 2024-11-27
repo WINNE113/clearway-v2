@@ -101,7 +101,7 @@ export const getusers = async() => {
 
 export const getuser = async(id) => {
     try {
-        const res = await axios.post(`/api/user/${id}`, {
+        const res = await axios.get(`/api/user/${id}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
           });

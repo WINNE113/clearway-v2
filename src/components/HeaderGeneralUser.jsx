@@ -33,7 +33,7 @@ export default function HeaderGeneralUser() {
     }
   };
   return (
-    <Navbar className="bg-[#63E72E] bg-opacity-90 h-20 flex items-center sticky top-0 z-50">
+    <Navbar className="bg-[#4284EF] bg-opacity-80 h-20 flex items-center sticky top-0 z-50">
       <Navbar.Brand href="/">
         <img
           src="/public/g8.svg"

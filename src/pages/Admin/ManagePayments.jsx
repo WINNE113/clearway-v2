@@ -2,7 +2,8 @@ import { useState, useEffect } from "react"
 import { FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { Button, Modal, TextInput, Label } from "flowbite-react";
-import { getPrimiumPackages, createPrimiumPackage, updatePrimiumPackage, deletePrimiumPackage } from "../../service/PaymentAPI";
+import { getPrimiumPackages, createPrimiumPackage, updatePrimiumPackage, deletePrimiumPackage, getUserPayment, updateUserPayment } from "../../service/PaymentAPI";
+import { getuser } from "../../service/UserAPI";
 
 const ManagePayments = () => {
 
@@ -17,6 +18,8 @@ const ManagePayments = () => {
     const [selectedUid, setSelectedUid] = useState(null);
     const [message, setMessage] = useState(null);
 
+    const [userPayment, setUserPayment] = useState([])
+
     const [packageData, setPackageData] = useState({
         id: "",
         namePackage: "",
@@ -24,6 +27,8 @@ const ManagePayments = () => {
         price: 0,
         timePackage: 1,
     });
+
+    const [userPaymentData, setUserPaymentData] = useState(null);
 
     // Sample data
     const userDataTabs = [
@@ -35,17 +40,7 @@ const ManagePayments = () => {
         {
             value: "upgradeUsers",
             label: "Danh sách tài khoản nâng cấp",
-            data: [
-                {
-                    createdDate: "20/11/2023",
-                    fullName: "Đặng duy bảo",
-                    email: "duybao@gmail.com",
-                    phoneNumber: "033201054",
-                    code: "434324234",
-                    nameOfPackage: "Hàng tháng",
-                    statusTransaction: "Hết hạn"
-                }
-            ]
+            data: userPayment
         }
     ]
     const [activeTab, setActiveTab] = useState("upgradePackages")
@@ -78,8 +73,9 @@ const ManagePayments = () => {
         setOpenModalPackage(true);
     };
 
-    const handleEditUser = () => {
+    const handleEditUser = (item) => {
         setOpenModalUser(true);
+        setUserPaymentData(item);
     }
 
     const handleDelete = (uid) => {
@@ -144,6 +140,22 @@ const ManagePayments = () => {
         }
     }
 
+    const handleUpdateUserPayment = async () => {
+        try {
+            const formData = {
+                order_code: userPaymentData?.order_code
+            }
+            const res = await updateUserPayment(formData, userPaymentData?._id);
+            setOpenModalUser(false);
+            fetchUserPayment();
+        } catch (error) {
+            setMessage(`Đã xảy ra lỗi không mong muốn. Vui lòng thử lại. ${error}`);
+            setShowMessageModal(true);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const fetchPrimiumPackage = async () => {
         try {
             const response = await getPrimiumPackages();
@@ -155,8 +167,27 @@ const ManagePayments = () => {
         }
     };
 
+    const fetchUserPayment = async () => {
+        try {
+            setLoading(true);
+
+            const response = await getUserPayment();
+            if (response && response.data) {
+                setUserPayment(response.data);
+            } else {
+                setUserPayment([]); // Đảm bảo reset nếu không có dữ liệu
+            }
+        } catch (error) {
+            setMessage(`Lỗi lấy dữ liệu premium package: ${error.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     useEffect(() => {
         fetchPrimiumPackage();
+        fetchUserPayment();
     }, []);
 
 
@@ -235,17 +266,27 @@ const ManagePayments = () => {
                                 </tr>
                             </thead>
                             <tbody className="text-gray-950 text-sm font-light">
-                                {userDataTabs.find(tab => tab.value === activeTab).data?.map((user) => (
-                                    <tr key={user.code} className="border-b border-gray-200 hover:bg-gray-100">
-                                        <td className="py-1 px-2 text-left whitespace-nowrap">{user.code}</td>
-                                        <td className="py-1 px-2 text-left whitespace-nowrap">{user.createdDate}</td>
-                                        <td className="py-1 px-2 text-left whitespace-nowrap">{user.fullName}</td>
-                                        <td className="py-1 px-2 text-left whitespace-nowrap">{user.email}</td>
-                                        <td className="py-1 px-2 text-left whitespace-nowrap">{user.phoneNumber}</td>
-                                        <td className="py-1 px-2 text-left whitespace-nowrap">{user.nameOfPackage}</td>
-                                        <td className={`py-1 px-2 text-left whitespace-nowrap ${user.statusTransaction === "Hết hạn" ? "text-red-600" : "text-green-700"}`}>{user.statusTransaction}</td>
+                                {userDataTabs.find(tab => tab.value === activeTab)?.data?.map((payment) => (
+                                    <tr key={payment?.order_code || payment?._id} className="border-b border-gray-200 hover:bg-gray-100">
+                                        <td className="py-1 px-2 text-left whitespace-nowrap">{payment?.order_code || "N/A"}</td>
+                                        <td className="py-1 px-2 text-left whitespace-nowrap">{payment?.created_at || "N/A"}</td>
+                                        <td className="py-1 px-2 text-left whitespace-nowrap">{payment?.user?.username || "Chưa xác định"}</td>
+                                        <td className="py-1 px-2 text-left whitespace-nowrap">{payment?.user?.email || "Không có email"}</td>
+                                        <td className="py-1 px-2 text-left whitespace-nowrap">{payment?.user?.phone_number || "Không có số điện thoại"}</td>
+                                        <td className="py-1 px-2 text-left whitespace-nowrap">
+                                            {payment?.premium_package?.name_package || "Chưa đăng ký gói"}
+                                        </td>
+                                        <td className={`py-1 px-2 text-left whitespace-nowrap ${payment?.status_package ? "text-green-700" : "text-red-600"}`}>
+                                            {payment?.status_package === true ? "Đang hoạt động" : "Hết hạn"}
+                                        </td>
                                         <td className="py-1 px-2 flex space-x-4 justify-center items-center mt-5">
-                                            <button onClick={handleEditUser} className="w-6 h-6 text-black"><FaRegEdit /></button>
+                                            <button
+                                                onClick={() => handleEditUser(payment)}
+                                                className="w-6 h-6 text-black"
+                                                title="Chỉnh sửa người dùng"
+                                            >
+                                                <FaRegEdit />
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
@@ -334,6 +375,7 @@ const ManagePayments = () => {
                             <TextInput
                                 id="fullName"
                                 placeholder="Nhập họ và tên"
+                                value={userPaymentData?.user?.username}
                                 readOnly
                             />
                         </div>
@@ -342,6 +384,7 @@ const ManagePayments = () => {
                             <TextInput
                                 id="email"
                                 placeholder="Nhập email"
+                                value={userPaymentData?.user?.email}
                                 readOnly
                             />
                         </div>
@@ -352,6 +395,7 @@ const ManagePayments = () => {
                                     <TextInput
                                         id="phoneNumber"
                                         placeholder="Nhập số điện thoại"
+                                        value={userPaymentData?.user?.phone_number}
                                     />
                                 </div>
                                 <div>
@@ -360,6 +404,7 @@ const ManagePayments = () => {
                                         id="timeOfUpgrade"
                                         placeholder="Nhập thời gian nâng cấp"
                                         type="date"
+                                        value={userPaymentData?.created_at.split("T")[0]}
                                     />
                                 </div>
                             </div>
@@ -369,6 +414,8 @@ const ManagePayments = () => {
                                     <TextInput
                                         id="code"
                                         placeholder="Nhập mã đơn hàng"
+                                        value={userPaymentData?.order_code}
+
                                     />
                                 </div>
                                 <div>
@@ -376,6 +423,7 @@ const ManagePayments = () => {
                                     <TextInput
                                         id="nameOfPackage"
                                         placeholder="Nhập tên gói nâng cấp"
+                                        value={userPaymentData?.premium_package?.name_package}
                                     />
                                 </div>
                             </div>
@@ -384,7 +432,7 @@ const ManagePayments = () => {
                 </Modal.Body>
                 <Modal.Footer>
                     <div className="flex items-center justify-center space-x-5">
-                        <Button onClick={() => setOpenModalUser(false)}>Update</Button>
+                        <Button onClick={() => handleUpdateUserPayment()}>Update</Button>
                         <Button className="bg-red-500 text-white" onClick={() => setOpenModalUser(false)}>
                             Cancel
                         </Button>
