@@ -2,7 +2,8 @@ import { Modal, TextInput, Pagination, Button, Label, Textarea, ToggleSwitch } f
 import { getReports, updateReport, deleteReport } from "../../service/ReportAPI";
 import { getuser } from "../../service/UserAPI";
 import { useEffect, useState } from "react";
-const ManageReport = () => {
+    const ManageReport = () => {
+    const [activeTab] = useState("generalUser")
     const [switch1, setSwitch1] = useState(false);
     const [switch2, setSwitch2] = useState(false);
     const [loading, setLoading] = useState(true);

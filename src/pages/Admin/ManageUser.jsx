@@ -64,7 +64,7 @@ const ManageUser = () => {
                     try {
                         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                         setImageFileUrl(downloadURL);
-                        setFormData({ ...formData, profilePicture: downloadURL });
+                        setFormData({ ...formData, profile_picture: downloadURL });
                     } catch (error) {
                         console.error("Download URL error:", error);
                     } finally {
@@ -82,7 +82,7 @@ const ManageUser = () => {
         if (imageFile) {
             uploadImage();
         }
-    }, [imageFile, uploadImage]);
+    }, [imageFile]);
 
     useEffect(() => {
         const fetchUsers = async () => {
