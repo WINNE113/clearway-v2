@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { DashSidebar, Header } from "../../components/index"
 import { TrafficStatistics } from "../index";
-import ProfileComporate from "./ProfileComporate";
+import ProfileAdmin from "../Admin/ProfileAdmin";
 
 export default function Dashboard() {
   const location = useLocation();
@@ -26,7 +26,7 @@ export default function Dashboard() {
           {/* Home... */}
           {tab === "home"}
           {/* Profile... */}
-          {tab === "profile" && <ProfileComporate />}
+          {tab === "profile" && <ProfileAdmin />}
           {/* Traffic Statistics... */}
           {tab === "traffic-statistics" && <TrafficStatistics />}
         </div>

@@ -40,7 +40,7 @@ const ForgetPassword = () => {
             if (res.status !== 200) {
                 setError(res.detail);
             } else {
-                navigate(`/resetpassword/${res.data.id}`)
+                navigate(`/reset-password/${res.data.id}`)
             }
         } catch (error) {
             setError(error);
@@ -51,7 +51,7 @@ const ForgetPassword = () => {
 
 
     return (
-        <div className="w-full flex flex-col items-center gap-8 mt-28">
+        <div className="min-h-screen flex items-center justify-center dark:bg-gray-900 dark:text-white">
             <div className="flex flex-row w-full justify-center items-center">
                 <div className="w-1/2 flex justify-center items-center">
                     <img src="logo.svg" className="w-72 max-h-80 object-cover" alt="logo image" />
@@ -59,7 +59,7 @@ const ForgetPassword = () => {
                 <div className="w-1/2 flex justify-center items-center">
                     <form onSubmit={handleSubmit} className="rounded-lg shadow-sm inset-0 p-8 flex flex-col gap-8 w-[500px]">
                         <img src="logo.svg" className="object-cover mt-6 w-14 h-14 flex justify-center items-center mx-auto" alt="logo" />
-                        <h2 className="text-3xl text-gray-700 tracking-tight font-bold m-auto">Forget Password</h2>
+                        <h2 className="text-3xl text-gray-700 tracking-tight font-bold m-auto">Quên mật khẩu</h2>
                         <TextInput
                             label="Enter your email"
                             textColor="#333333"
@@ -70,13 +70,13 @@ const ForgetPassword = () => {
                         />
                         {error && <span className="text-red-500">{error}</span>}
                         <Button type="submit" fullWidth className="mt-3 rounded-full" disabled={isLoading}>
-                            {isLoading ? "Loading..." : "Get OTP"}
+                            {isLoading ? "Loading..." : "Gửi mã xác nhận"}
                         </Button>
                     </form>
                 </div>
             </div>
-            <Modal show={modal} onClose={() => setModal(false)}>
-                <Modal.Header>Enter OTP</Modal.Header>
+            <Modal show={modal} onClose={() => setModal(false)} size="md">
+                <Modal.Header>Mã xác nhận OTP</Modal.Header>
                 <Modal.Body>
                     <form onSubmit={handleOtpSubmit} className="flex flex-col gap-4">
                         <TextInput
@@ -84,11 +84,11 @@ const ForgetPassword = () => {
                             textColor="#333333"
                             value={otp}
                             onChange={(e) => setOtp(e.target.value)}
-                            placeholder="Enter OTP"
+                            placeholder="Nhập mã xác nhận OTP"
                             fullWidth
                         />
                         <Button type="submit" fullWidth className="mt-3 rounded-full">
-                            Submit OTP
+                            Gửi mã xác nhận
                         </Button>
                     </form>
                 </Modal.Body>

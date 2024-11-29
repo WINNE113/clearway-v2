@@ -21,8 +21,8 @@ export default function Dashboard() {
         {/* Sidebar */}
         <DashSidebar />
       </div>
-      <div className="col-span-10">
-        <div className="flex-row gap-2">
+      <div className="col-span-10 h-full">
+        <div className="flex-row gap-2 h-full">
           <Header/>
           {/* Overview... */}
           {tab === "overview" && <Overview/>}

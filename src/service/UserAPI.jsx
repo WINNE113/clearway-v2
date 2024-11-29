@@ -1,10 +1,10 @@
 import axios from "./axios"
 
 
-export const verifyemail = async(data) => {
+export const verifyemail = async (data) => {
     try {
         console.log(data);
-       
+
         const res = await axios.post('/api/auth/verify_email', data);
         return res;
     } catch (error) {
@@ -13,7 +13,7 @@ export const verifyemail = async(data) => {
 }
 
 
-export const signup = async(data) => {
+export const signup = async (data) => {
     try {
         const res = await axios.post('/api/auth/signup', data);
         return res;
@@ -23,13 +23,14 @@ export const signup = async(data) => {
 }
 
 
-export const google = async(resultsFromGoogle) => {
+export const google = async (resultsFromGoogle) => {
     try {
         const res = await axios.post('/api/auth/google', {
-                name: resultsFromGoogle.user.displayName,
-                email: resultsFromGoogle.user.email,
-                googlePhotoUrl: resultsFromGoogle.user.photoURL}
-            )
+            name: resultsFromGoogle.user.displayName,
+            email: resultsFromGoogle.user.email,
+            googlePhotoUrl: resultsFromGoogle.user.photoURL
+        }
+        )
         return res;
     } catch (error) {
         throw new Error('Failed to fetch sign in with google');
@@ -37,9 +38,9 @@ export const google = async(resultsFromGoogle) => {
 }
 
 
-export const login = async(data) => {
+export const login = async (data) => {
     try {
-        const res = await axios.post('/api/auth/signin', data , { withCredentials: true });
+        const res = await axios.post('/api/auth/signin', data, { withCredentials: true });
         return res;
     } catch (error) {
         throw new Error('Failed to fetch sign in');
@@ -47,7 +48,7 @@ export const login = async(data) => {
 }
 
 
-export const forgotpassword = async(data) => {
+export const forgotpassword = async (data) => {
     try {
         const res = await axios.post('/api/auth/forgot_password', data);
         return res;
@@ -57,7 +58,7 @@ export const forgotpassword = async(data) => {
 }
 
 
-export const resetpasswordotp = async(data) => {
+export const resetpasswordotp = async (data) => {
     try {
         const res = await axios.post('/api/auth/reset_password_otp', data);
         return res;
@@ -67,7 +68,7 @@ export const resetpasswordotp = async(data) => {
 }
 
 
-export const resetpassword = async(data) => {
+export const resetpassword = async (data) => {
     try {
         const res = await axios.post('/api/auth/reset_password', data, {
             headers: { 'Content-Type': 'application/json' },
@@ -79,7 +80,7 @@ export const resetpassword = async(data) => {
 }
 
 
-export const signout = async() => {
+export const signout = async () => {
     try {
         const res = await axios.post('/api/user/signout', {}, { withCredentials: true });
         return res;
@@ -88,8 +89,17 @@ export const signout = async() => {
     }
 }
 
+export const detailUser = async (id) => {
+    try {
+        const res = await axios.get(`api/user/${id}`);
+        return res;
+    } catch (error) {
+        throw new Error('Failed to fetch sign out');
+    }
+}
 
-export const getusers = async() => {
+
+export const getusers = async () => {
     try {
         const res = await axios.get('/api/user/get_users');
         return res;
@@ -99,12 +109,12 @@ export const getusers = async() => {
 }
 
 
-export const getuser = async(id) => {
+export const getuser = async (id) => {
     try {
         const res = await axios.get(`/api/user/${id}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
-          });
+        });
         return res;
     } catch (error) {
         throw new Error('Failed to fetch get user');
@@ -112,7 +122,7 @@ export const getuser = async(id) => {
 }
 
 
-export const create_payment_link = async(data) => {
+export const create_payment_link = async (data) => {
     try {
         const res = await axios.post('/api/payment/create_payment_link', data, {
             headers: { 'Content-Type': 'application/json' },
@@ -124,7 +134,7 @@ export const create_payment_link = async(data) => {
 }
 
 
-export const banUser= async(userId) => {
+export const banUser = async (userId) => {
     try {
         const res = await axios.put(`/api/user/ban_user/${userId}`);
         return res;
@@ -134,7 +144,7 @@ export const banUser= async(userId) => {
 }
 
 
-export const unbanUser= async(userId) => {
+export const unbanUser = async (userId) => {
     try {
         const res = await axios.put(`/api/user/unban_user/${userId}`);
         return res;
@@ -144,7 +154,7 @@ export const unbanUser= async(userId) => {
 }
 
 
-export const setBanUser = async(except) => {
+export const setBanUser = async (except) => {
     try {
         const res = await axios.put(`/api/user/${except}`);
         return res;
@@ -154,7 +164,7 @@ export const setBanUser = async(except) => {
 }
 
 
-export const createTrafficAuthority= async(data) => {
+export const createTrafficAuthority = async (data) => {
     try {
         const res = await axios.post(`/api/user/create_traffic_authority`, data);
         return res;
@@ -164,11 +174,29 @@ export const createTrafficAuthority= async(data) => {
 }
 
 
-export const updateAccount= async(data, id) => {
+export const updateAccount = async (data, id) => {
     try {
         const res = await axios.put(`/api/user/update_user/${id}`, data);
         return res;
     } catch (error) {
         throw new Error('Failed to fetch create traffic authority');
+    }
+}
+
+export const updateProfile = async (data, id) => {
+    try {
+        const res = await axios.put(`/api/user/${id}/update_user`, data);
+        return res;
+    } catch (error) {
+        throw new Error('Failed to fetch update profile');
+    }
+}
+
+export const changePassword = async (data, id) => {
+    try {
+        const res = await axios.put(`/api/auth/${id}/changepassword`, data);
+        return res;
+    } catch (error) {
+        throw new Error('Failed to fetch changepassword');
     }
 }

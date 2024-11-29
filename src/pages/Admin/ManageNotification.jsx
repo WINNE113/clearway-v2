@@ -2,18 +2,62 @@ import { FaUserCog, FaUsers } from 'react-icons/fa';
 import { MdEmail } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { IoCallSharp } from "react-icons/io5";
-import { Button, Modal, TextInput, Pagination, Label, Textarea } from "flowbite-react";
+import { Button, Modal, TextInput, Pagination, Label, Textarea, Select } from "flowbite-react";
 import { useEffect, useState } from 'react';
 import { getusers } from '../../service/UserAPI';
+import { CreateNotificationsApi, DeleteNotification, getDataNotificationApi, getDetailNotificationApi, PutNotifcation } from '../../service/NotificationAPI';
 
 const ManageNotification = () => {
-    const [openModal, setOpenModal] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [openModal, setOpenModal] = useState(false);
+    const [openDetailModal, setOpenDetailModal] = useState(false);
+
+
+    const [notifications, setNotifications] = useState([]);
+
     const [users, setUsers] = useState(null);
     const [activeTab, setActiveTab] = useState(1);
     const [message, setMessage] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [usersPerPage] = useState(10);
+    const [formData, setFormData] = useState({
+        title: "",
+        content: "",
+        status: true,
+        role_recipient: 1
+    });
+    const [formDataUpdate, setFormDataUpdate] = useState({
+        title: "",
+        content: "",
+        status: true,
+        role_recipient: 1
+    });
+    const getCurrentTime = () => {
+        const now = new Date(); // Lấy thời gian hiện tại
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0'); // Tháng (bắt đầu từ 0)
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`; // Định dạng YYYY-MM-DD HH:mm:ss
+    };
+    const fetchNotifications = async () => {
+        try {
+            const response = await getDataNotificationApi();
+
+            setNotifications(response.data);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
+
+        fetchNotifications();
+    }, []);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -32,28 +76,88 @@ const ManageNotification = () => {
     const userrole = users ? users.filter(user => user.role === activeTab) : [];
     const pageCount = Math.ceil(userrole.length / usersPerPage);
     const onPageChange = (page) => { setCurrentPage(page); };
-    const userDataTabs = [
-        {
-            value: "generalUser",
-            label: "",
-            data: [
-                { id: 1, title: "Cập nhật vị trí của bạn", content: "Ứng dụng đang theo dõi vị trí của bạn để cung cấp chỉ đường", time: "12:10 20/09/2024", role: "General User", activity: "Bật" },
-                { id: 2, title: "Yêu cầu cấp quyền truy cập", content: "Google Maps cần quyền truy cập vị trí của bạn để cung cấp chỉ đường theo thời gian thực và gợi ý địa điểm gần nhất.", time: "09:30 21/09/2024", role: "Corporate User", activity: "Tắt" },
-                { id: 3, title: "Điều kiện giao thông thay đổi", content: "Có kẹt xe phía trước.", time: "17:50 15/09/2024", role: "Corporate User", activity: "Bật" },
-                { id: 4, title: "Tuyến đường của bạn đã được cập nhật", content: "Chúng tôi đã tìm thấy tuyến đường nhanh hơn dựa trên tình hình giao thông hiện tại.", time: "20:50 30/10/2024", role: "Corporate User", activity: "Bật" },
-                { id: 5, title: "Khám phá địa điểm mới!", content: "Google Maps đã cập nhật thêm các nhà hàng, điểm du lịch và dịch vụ mới gần vị trí của bạn.", time: "23:50 30/10/2024", role: "General User", activity: "Bật" },
-                { id: 6, title: "Cảnh báo pin yếu", content: "Pin của bạn đang yếu, ứng dụng sẽ tạm dừng cập nhật vị trí để tiết kiệm pin.", time: "12:50 29/10/2024", role: "General User", activity: "Bật" },
-                { id: 7, title: "Cảnh báo thời tiết nguy hiểm", content: "Chúng tôi thấy bạn đã tìm kiếm địa điểm [Tên Địa Điểm] trước đó.", time: "14:50 25/10/2024", role: "General User", activity: "Bật" },
-                { id: 8, title: "Hệ thống đang chờ sửa lỗi ", content: "Đang sửa lỗi", time: "00:00 25/10/2024", role: "General User", activity: "Bật" },
-                { id: 9, title: "Tài khoản đã thanh toán thành công", content: "Giao dịch thành công", time: "13:23 24/10/2024", role: "Corporate User", activity: "Bật" },
-                { id: 10, title: "Hệ thống bảo trì", content: "Thời gian bảo trì là 2 giờ", time: "23:59 10/10/2024", role: "Corporate User", activity: "Bật" },
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        setFormData({ ...formData, [name]: value });
+    };
+    const handleChangeUpdate = (e) => {
+        const { name, value } = e.target;
+
+        setFormDataUpdate({ ...formDataUpdate, [name]: value });
+    };
+    const submitNoti = async () => {
+        setLoading(true);
+        try {
+            const res = await CreateNotificationsApi(formData);
+            fetchNotifications();
+            setOpenCreateModal(false);
+
+        } catch (error) {
+            setMessage(`Error: ${error}`);
+
+        } finally {
+            setLoading(false);
+            setOpenModal(false);
+        }
+    };
+    const updateNoti = async (id) => {
+        setLoading(true);
+        try {
+            const res = await PutNotifcation(id, formDataUpdate);
+            fetchNotifications();
+            setOpenDetailModal(false);
+
+        } catch (error) {
+            setMessage(`Error: ${error}`);
+
+        } finally {
+            setLoading(false);
+            setOpenModal(false);
+        }
+    };
+
+    const changeStatus = async (id, status) => {
+        try {
+            const body = {
+                status: !status
+            }
+            const res = await PutNotifcation(id, body);
+
+            fetchNotifications();
 
 
-            ]
-        },
+        } catch (error) {
+            setMessage(`Error: ${error}`);
 
-    ]
+        }
+    }
+    const deleteNoti = async (id) => {
+        try {
 
+            const res = await DeleteNotification(id);
+
+            fetchNotifications();
+
+
+        } catch (error) {
+            setMessage(`Error: ${error}`);
+
+        }
+    }
+    const showDetailNoti = async (user) => {
+        try {
+
+
+            setFormDataUpdate(user)
+
+        } catch (error) {
+            setMessage(`Error: ${error}`);
+
+        }
+        setOpenDetailModal(true)
+    }
     return (
         <main className="mx-9 my-9">
             <div className="grid grid-cols-3 gap-6">
@@ -72,37 +176,42 @@ const ManageNotification = () => {
                             </div>
                         </div>
                         <div className="overflow-x-auto mt-5">
-                            {userDataTabs.map((tab) => (
-                                <div key={tab.value}>
-                                    <h2>{tab.label}</h2>
-                                    <table className="min-w-full bg-white">
-                                        <thead>
-                                            <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                                                <th className="py-3 px-6 text-left">Id</th>
-                                                <th className="py-3 px-6 text-left">Tiêu đề thông báo</th>
-                                                <th className="py-3 px-6 text-left">Nội dung thông báo</th>
-                                                <th className="py-3 px-6 text-left">Thời gian</th>
-                                                <th className="py-3 px-6 text-left">Người nhận</th>
-                                                <th className="py-3 px-6 text-left">Hành động</th>
+
+                            <div >
+
+                                <table className="min-w-full bg-white">
+                                    <thead>
+                                        <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                                            <th className="py-3 px-6 text-left">STT</th>
+                                            <th className="py-3 px-6 text-left">Tiêu đề thông báo</th>
+                                            <th className="py-3 px-6 text-left">Nội dung thông báo</th>
+                                            <th className="py-3 px-6 text-left">Thời gian</th>
+                                            <th className="py-3 px-6 text-left">Người nhận</th>
+                                            <th className="py-3 px-6 text-left">Hành động</th>
+                                            <th className="py-3 px-6 text-left">Xóa</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody className="text-gray-600 text-sm font-light">
+                                        {notifications.map((user, index) => (
+                                            <tr key={user.id} className="border-b border-gray-200 hover:bg-gray-100">
+                                                <td className="py-3 px-6 text-left font-bold">{index + 1}</td>
+                                                <td style={{ cursor: 'pointer' }} className="py-3 px-6 text-left font-bold text-cyan-500" onClick={() => showDetailNoti(user)}>{user.title}</td>
+                                                <td className="py-3 px-6 text-left font-bold">{user.content}</td>
+
+                                                <td className="py-3 px-6 text-left font-bold">{user.created_at}</td>
+                                                <td className="py-3 px-6 text-left font-bold">{user.role_recipient}</td>
+                                                <td className="py-3 px-6 text-left font-bold">{<a style={{ cursor: 'pointer' }} onClick={() => changeStatus(user._id, user.status)}>{user.status ? "Tắt" : "Bật"} </a>}</td>
+                                                <td className="py-3 px-6 text-left font-bold">{<a style={{ cursor: 'pointer' }} onClick={() => deleteNoti(user._id)}>Xóa </a>}</td>
+
                                             </tr>
-                                        </thead>
-                                        <tbody className="text-gray-600 text-sm font-light">
-                                            {tab.data.map((user) => (
-                                                <tr key={user.id} className="border-b border-gray-200 hover:bg-gray-100">
-                                                    <td className="py-3 px-6 text-left font-bold">{user.id}</td>
-                                                    <td className="py-3 px-6 text-left font-bold">{user.title}</td>
-                                                    <td className="py-3 px-6 text-left font-bold">{user.content}</td>
-                                                    <td className="py-3 px-6 text-left font-bold">{user.time}</td>
-                                                    <td className="py-3 px-6 text-left text-cyan-300 font-bold">{user.role}</td>
-                                                    <td className="py-3 px-6 text-left font-bold">{user.activity}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            ))}
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
                             <div className="flex items-center mt-3" style={{ justifyContent: 'center', display: 'flex' }}>
-                            <Pagination
+                                <Pagination
                                     layout="pagination"
                                     currentPage={currentPage}
                                     totalPages={pageCount}
@@ -172,26 +281,79 @@ const ManageNotification = () => {
                     <div style={{ maxWidth: 600 }}>
                         <div style={{ marginBottom: '16px' }}>
                             <label>Tiêu đề</label>
-                            <TextInput />
+                            <TextInput
+                                name='title'
+                                value={formData.title}
+                                onChange={handleChange} />
                         </div>
                         <div style={{ marginBottom: '16px' }}>
                             <label>Thời gian gửi thông báo</label>
-                            <TextInput />
+                            <TextInput value={getCurrentTime()}
+                                readOnly
+                            />
                         </div>
                         <div style={{ marginBottom: '16px' }}>
                             <label>Người nhận</label>
-                            <TextInput />
+                            <Select value={formData.role_recipient}
+                                name='role_recipient'
+                                onChange={handleChange}>
+                                <option value={1}>General User</option>
+                                <option value={2}>CorporateUser User</option>
+                            </Select>
                         </div>
                         <div className='mb-6'>
                             <Label htmlFor='description' value='Mô tả' />
-                            <Textarea id='description' />
+                            <Textarea id='description' name='content' value={formData.content}
+                                onChange={handleChange} />
                         </div>
                         <div className="flex gap-6" style={{ justifyContent: 'center' }}>
                             <Button className='w-1/2' color="failure" onClick={() => setOpenModal(false)}>
                                 Hủy
                             </Button>
-                            <Button className='w-1/2' type="submit">
+                            <Button className='w-1/2' onClick={() => submitNoti()}>
                                 Gửi thông báo
+                            </Button>
+                        </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
+            <Modal show={openDetailModal} size="xl" onClose={() => setOpenDetailModal(false)} popup>
+                <Modal.Header className='font-bold' style={{ textAlign: 'right' }}>Cập nhật thông báo</Modal.Header>
+                <Modal.Body style={{ margin: '20px' }}>
+                    <div style={{ maxWidth: 600 }}>
+                        <div style={{ marginBottom: '16px' }}>
+                            <label>Tiêu đề</label>
+                            <TextInput
+                                name='title'
+                                value={formDataUpdate.title}
+                                onChange={handleChangeUpdate} />
+                        </div>
+                        <div style={{ marginBottom: '16px' }}>
+                            <label>Thời gian gửi thông báo</label>
+                            <TextInput value={getCurrentTime()}
+                                readOnly
+                            />
+                        </div>
+                        <div style={{ marginBottom: '16px' }}>
+                            <label>Người nhận</label>
+                            <Select value={formDataUpdate.role_recipient}
+                                name='role_recipient'
+                                onChange={handleChangeUpdate}>
+                                <option value={1}>General User</option>
+                                <option value={2}>CorporateUser User</option>
+                            </Select>
+                        </div>
+                        <div className='mb-6'>
+                            <Label htmlFor='description' value='Mô tả' />
+                            <Textarea id='description' name='content' value={formDataUpdate.content}
+                                onChange={handleChangeUpdate} />
+                        </div>
+                        <div className="flex gap-6" style={{ justifyContent: 'center' }}>
+                            <Button className='w-1/2' color="failure" onClick={() => setOpenDetailModal(false)}>
+                                Hủy
+                            </Button>
+                            <Button className='w-1/2' onClick={() => updateNoti(formDataUpdate._id)}>
+                                Cập nhật thông báo
                             </Button>
                         </div>
                     </div>

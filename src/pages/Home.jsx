@@ -1,24 +1,11 @@
-import { HeaderGeneralUser } from "../components/index";
-import React, { useState, useEffect } from 'react'
-import { Button, Navbar } from 'flowbite-react'
+import { Header } from "../components/index";
+import { Button } from 'flowbite-react'
 import { FaCar } from "react-icons/fa";
 
 export default function Home() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        setIsMenuOpen(false)
-      }
-    }
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
   return (
-    <div className="min-h-screen !bg-gradient-to-b from-[#4284EF] to-[#4284EF]">
-      <HeaderGeneralUser />
+    <div className="min-h-screen !bg-gradient-to-b from-[#408DEF] to-[#408DEF]">
+      <Header />
       <main className="container mx-auto px-4 py-8 md:py-14">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
           <div className="ml-32 text-center md:text-left">
@@ -38,20 +25,10 @@ export default function Home() {
             <img className="absolute top-0 w-96" src="/public/hexagon.svg" />
           </div>
           <div className="flex justify-center mr-32 md:justify-end space-x-4">
-            <img
-              src="/public/appMobile.svg"
-              alt="Phone 1"
-              width={200}
-              height={400}
-              className="w-1/2 max-w-[200px] object-contain"
-            />
-            <img
-              src="/public/appMobile2.svg"
-              alt="Phone 2"
-              width={200}
-              height={400}
-              className="w-1/2 max-w-[200px] object-contain mt-8 md:mt-16"
-            />
+            <img src="/public/appMobile.svg" alt="Phone 1" width={200} height={400}
+              className="w-1/2 max-w-[200px] object-contain"/>
+            <img src="/public/appMobile2.svg" alt="Phone 2" width={200} height={400} 
+              className="w-1/2 max-w-[200px] object-contain mt-8 md:mt-16"/>
           </div>
         </div>
       </main>

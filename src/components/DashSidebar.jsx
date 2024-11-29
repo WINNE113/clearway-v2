@@ -50,6 +50,7 @@ export default function DashSidebar() {
                       Thống kê tổng quan
                     </Sidebar.Item>
                   </Link>
+                
                   <Link to="/admin/dashboard?tab=manage-user">
                     <Sidebar.Item active={tab === "manage-user"} icon={HiUser} as="div" className="custom-sidebar-item">
                       Quản lý người dùng
@@ -101,7 +102,7 @@ export default function DashSidebar() {
                   Trang chủ
                 </Sidebar.Item>
               </Link>
-              <Link to="/profilegenral">
+              <Link to="/profileadmin?tab=profile">
                 <Sidebar.Item active={tab === "profile"} icon={HiPresentationChartLine} as="div" className="custom-sidebar-item">
                   Hồ sơ
                 </Sidebar.Item>
@@ -120,7 +121,7 @@ export default function DashSidebar() {
                   Trang chủ
                 </Sidebar.Item>
               </Link>
-              <Link to="/profilecomporate">
+              <Link to="/profileadmin?tab=profile">
                 <Sidebar.Item active={tab === "profile"} icon={HiPresentationChartLine} as="div" className="custom-sidebar-item">
                   Hồ sơ
                 </Sidebar.Item>

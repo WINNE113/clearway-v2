@@ -35,7 +35,6 @@ export const deletePrimiumPackage = async (id) => {
         throw new Error('Failed to fetch delete primium packages');
     }
 }
-
 export const getUserPayment = async () => {
     try {
         const res = await axios.get(`/api/payment/get_payments`);
@@ -53,4 +52,5 @@ export const updateUserPayment = async (data, id) => {
         throw new Error('Failed to fetch update user payment');
     }
 }
+
 

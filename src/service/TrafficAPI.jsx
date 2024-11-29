@@ -45,3 +45,49 @@ export const DeleteTrafficSign = async (id) => {
         throw new Error(`Failed to delete traffic sign: ${error.message}`);
     }
 };
+
+//// Camera - Video Giao Thông API ////
+export const GetListCamera = async () => {
+    try {
+        const res = await axios.get(`/api/camera/get_cameras`);
+        return res;
+    } catch (error) {
+        throw new Error(`Failed to fetch list of camera: ${error.message}`);
+    }
+};
+
+export const GetCamera = async (id) => {
+    try {
+        const res = await axios.get(`/api/camera/get_camera/${id}`);
+        return res;
+    } catch (error) {
+        throw new Error(`Failed to fetch camera by id: ${error.message}`);
+    }
+};
+
+export const PostCamera = async (data) => {
+    try {
+        const res = await axios.post(`/api/camera/create_camera`, data);
+        return res;
+    } catch (error) {
+        throw new Error(`Failed to create camera: ${error.message}`);
+    }
+};
+
+export const PutCamera = async (id, data) => {
+    try {
+        const res = await axios.put(`/api/camera/update_camera/${id}`, data);
+        return res;
+    } catch (error) {
+        throw new Error(`Failed to update camera: ${error.message}`);
+    }
+};
+
+export const DeleteCamera = async (id) => {
+    try {
+        const res = await axios.delete(`/api/camera/delete_camera/${id}`);
+        return res;
+    } catch (error) {
+        throw new Error(`Failed to delete camera: ${error.message}`);
+    }
+};

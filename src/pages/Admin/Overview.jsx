@@ -7,8 +7,125 @@ import { PiTrafficSignalLight } from "react-icons/pi";
 import { MdAdminPanelSettings, MdEmail, MdOutlineCircleNotifications } from "react-icons/md";
 import { FaHireAHelper } from "react-icons/fa6";
 import { IoCallSharp } from "react-icons/io5";
-
+import { getDataTrafficRoute, getDataTrafficSign } from "../../service/TrafficStatusAPI";
+import { getusers } from "../../service/UserAPI";
+import { useEffect, useState } from "react";
 const Overview = () => {
+    const [trafficsign, setTrafficsigns] = useState([]);
+    const [trafficroute, setTrafficRoute] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [rolesCount, setRolesCount] = useState({
+        totalGeneralUser: 0,
+        totalAdmin: 0,
+        totalCorporate: 0,
+        totalTrafficAuthority: 0,
+        activeGeneralUser: 0,
+        inactiveGeneralUser: 0,
+        activeCorporate: 0,
+        inactiveCorporate: 0,
+        activeTrafficAuthority: 0,
+        inactiveTrafficAuthority: 0,
+        activeAdmin: 0,
+        inactiveAdmin: 0,
+    });
+    const {
+        totalGeneralUser, activeGeneralUser, inactiveGeneralUser,
+        totalAdmin, activeAdmin, inactiveAdmin,
+        totalCorporate, activeCorporate, inactiveCorporate,
+        totalTrafficAuthority, activeTrafficAuthority, inactiveTrafficAuthority
+    } = rolesCount;
+
+    useEffect(() => {
+        fetchDataTrafficSign();
+    }, []);
+    const fetchDataTrafficSign = async () => {
+        try {
+            const response = await getDataTrafficSign();
+            const data = response.data;
+            setTrafficsigns(data);
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu:", error.message);
+        }
+    };
+
+    console.log(trafficsign);
+
+    const totalSigns = trafficsign.length;
+
+    useEffect(() => {
+        fetchDataTrafficRoute();
+    }, []);
+    const fetchDataTrafficRoute = async () => {
+        try {
+            const response = await getDataTrafficRoute();
+            const data = response.data;
+            setTrafficRoute(data);
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu:", error.message);
+        }
+    };
+
+    console.log(trafficroute);
+
+    const totalRoutes = trafficroute.length;
+
+
+    useEffect(() => {
+        fetchDataUsers();
+    }, []);
+    const fetchDataUsers = async () => {
+        try {
+            const response = await getusers();
+            const data = response.data.users;
+            setUsers(data);
+
+            //Tính toán số lượng người dùng theo vai trò và trạng thái hoạt động
+            const count = data.reduce((acc, user) => {
+                const role = user.role;
+                const isActive = !user.is_ban; // Nếu is_ban là false thì người dùng đang hoạt động, ngược lại là bị cấm
+
+                //Thêm vào tổng số người dùng cho từng vai trò và trạng thái
+                if (role === 1) {
+                    acc.totalGeneralUser++;
+                    if (isActive) acc.activeGeneralUser++;
+                    else acc.inactiveGeneralUser++;
+                }
+                if (role === 2) {
+                    acc.totalCorporate++;
+                    if (isActive) acc.activeCorporate++;
+                    else acc.inactiveCorporate++;
+                }
+                if (role === 3) {
+                    acc.totalTrafficAuthority++;
+                    if (isActive) acc.activeTrafficAuthority++;
+                    else acc.inactiveTrafficAuthority++;
+                }
+                if (role === 0) {
+                    acc.totalAdmin++;
+                    if (isActive) acc.activeAdmin++;
+                    else acc.inactiveAdmin++;
+                }
+
+                return acc;
+            }, {
+                totalGeneralUser: 0, totalAdmin: 0, totalCorporate: 0, totalTrafficAuthority: 0,
+                activeGeneralUser: 0, inactiveGeneralUser: 0,
+                activeCorporate: 0, inactiveCorporate: 0,
+                activeTrafficAuthority: 0, inactiveTrafficAuthority: 0,
+                activeAdmin: 0, inactiveAdmin: 0
+            });
+
+            setRolesCount(count); // Lưu vào state rolesCount
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu:", error.message);
+        }
+    };
+
+
+
+    console.log(users);
+
+    const totalUser = users.length;
     return (
         <div className="flex h-screen bg-gray-100">
             <div className="flex-1 flex flex-col overflow-hidden">
@@ -23,39 +140,39 @@ const Overview = () => {
                                         <div className="flex items-center mt-3 mb-3">
                                             <Datepicker />
                                         </div>
-                                        <span className="text-xs font-bold">Tổng: 9 người dùng</span>
+                                        <span className="text-xs font-bold">Tổng: {totalUser} người dùng</span>
                                     </div>
                                     <div className="bg-blue-100 p-4 rounded-lg shadow-md grid-cols-1">
                                         <h2 className="text-xs font-bold flex items-center justify-center">
                                             <FaUserCog className="mr-2" />General User
                                         </h2>
-                                        <h2 className="text-sm text-green-400 mt-3">1200 Hoạt động</h2>
+                                        <h2 className="text-sm text-green-400 mt-3">{activeGeneralUser} Hoạt động</h2>
                                         <div className="w-full border-t border-gray-300 my-3" />
-                                        <h2 className="text-sm text-orange-500 mt-3">1200 Không Hoạt động</h2>
+                                        <h2 className="text-sm text-orange-500 mt-3">{inactiveGeneralUser} Không Hoạt động</h2>
                                     </div>
                                     <div className="bg-orange-100 p-4 rounded-lg shadow-md grid-cols-1">
                                         <h2 className="text-xs font-bold flex items-center justify-center">
                                             <FaUserAstronaut className="mr-2" />Corporate User
                                         </h2>
-                                        <h2 className="text-sm text-green-400 mt-3">1200 Hoạt động</h2>
+                                        <h2 className="text-sm text-green-400 mt-3">{activeCorporate} Hoạt động</h2>
                                         <div className="w-full border-t border-gray-300 my-3" />
-                                        <h2 className="text-sm text-orange-500 mt-3">1200 Không Hoạt động</h2>
+                                        <h2 className="text-sm text-orange-500 mt-3">{inactiveCorporate} Không Hoạt động</h2>
                                     </div>
                                     <div className="bg-blue-100 p-4 rounded-lg shadow-md grid-cols-1">
                                         <h2 className="text-xs font-bold flex items-center justify-center">
                                             <PiTrafficSignalLight className="mr-2" />Traffic Authority
                                         </h2>
-                                        <h2 className="text-sm text-green-400 mt-3">1200 Hoạt động</h2>
+                                        <h2 className="text-sm text-green-400 mt-3">{activeTrafficAuthority} Hoạt động</h2>
                                         <div className="w-full border-t border-gray-300 my-3" />
-                                        <h2 className="text-sm text-orange-500 mt-3">1200 Không Hoạt động</h2>
+                                        <h2 className="text-sm text-orange-500 mt-3">{inactiveTrafficAuthority} Không Hoạt động</h2>
                                     </div>
                                     <div className="bg-orange-100 p-4 rounded-lg shadow-md grid-cols-1">
                                         <h2 className="text-xs font-bold flex items-center justify-center">
                                             <MdAdminPanelSettings className="mr-2" />Admin
                                         </h2>
-                                        <h2 className="text-sm text-green-400 mt-3">1200 Hoạt động</h2>
+                                        <h2 className="text-sm text-green-400 mt-3">{activeAdmin} Hoạt động</h2>
                                         <div className="w-full border-t border-gray-300 my-3" />
-                                        <h2 className="text-sm text-orange-500 mt-3">1200 Không Hoạt động</h2>
+                                        <h2 className="text-sm text-orange-500 mt-3">{inactiveAdmin} Không Hoạt động</h2>
                                     </div>
                                 </div>
                             </div>
@@ -68,14 +185,14 @@ const Overview = () => {
                                         <div className="flex items-center mt-3 mb-3">
                                             <Datepicker />
                                         </div>
-                                        <span className="text-xs font-bold">Tổng: 9 tuyến đường</span>
+                                        <span className="text-xs font-bold">Tổng: {totalRoutes} tuyến đường</span>
                                     </div>
                                     <div className="bg-blue-100 p-4 rounded-lg shadow-md col-span-4 flex justify-center items-center flex-col">
                                         <h2 className="text-lg font-bold flex items-center justify-center">
                                             <CiSun className="mr-2" /> Tổng số
                                         </h2>
                                         <div className="w-full border-t border-gray-300 my-3" />
-                                        <h2 className="text-sm text-orange-500 mt-3 text-center">300 Tuyến đường</h2>
+                                        <h2 className="text-sm text-orange-500 mt-3 text-center">{totalRoutes} Tuyến đường</h2>
                                     </div>
                                 </div>
                             </div>
@@ -88,7 +205,7 @@ const Overview = () => {
                                         <div className="flex items-center mt-3 mb-3">
                                             <Datepicker />
                                         </div>
-                                        <span className="text-xs font-bold">Tổng: 9 biển báo</span>
+                                        <span className="text-xs font-bold">Tổng: {totalSigns} biển báo</span>
                                     </div>
                                     <div className="bg-blue-100 p-4 rounded-lg shadow-md grid-cols-1">
                                         <h2 className="text-xs font-bold flex items-center justify-center">

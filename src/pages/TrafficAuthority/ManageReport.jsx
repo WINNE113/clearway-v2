@@ -2,7 +2,7 @@ import { Modal, TextInput, Pagination, Button, Label, Textarea, ToggleSwitch } f
 import { getReports, updateReport, deleteReport } from "../../service/ReportAPI";
 import { getuser } from "../../service/UserAPI";
 import { useEffect, useState } from "react";
-    const ManageReport = () => {
+const ManageReport = () => {
     const [activeTab] = useState("generalUser")
     const [switch1, setSwitch1] = useState(false);
     const [switch2, setSwitch2] = useState(false);
@@ -78,8 +78,6 @@ import { useEffect, useState } from "react";
             setLoading(false);
         }
     };
-
-
     const extractDays = (timeString) => {
         if (!timeString) return "";
         const daysPart = timeString.split("T")[0];
@@ -156,6 +154,8 @@ import { useEffect, useState } from "react";
     useEffect(() => {
         fetchReportTraffic()
     }, []);
+    
+    
 
     return (
         <main className="mx-9 my-9">
@@ -180,7 +180,7 @@ import { useEffect, useState } from "react";
                                     </tr>
                                 </thead>
                                 <tbody className="text-gray-600 text-sm font-light">
-                                    {reportTraffic?.map((report) => (
+                                {reportTraffic?.map((report) => (
                                         <tr key={report?._id} className="border-b border-gray-200 hover:bg-gray-100">
                                             <td className="py-2 px-2 text-left font-bold">{extractDays(report?.created_at)}</td>
                                             <td className="py-2 px-2 text-left font-bold"> {report?.user_role} </td>
@@ -196,6 +196,7 @@ import { useEffect, useState } from "react";
                             </table>
                         </div>
                         <div className="flex items-center mt-3" style={{ justifyContent: 'center', display: 'flex' }}>
+
                             <Pagination
                                 layout="pagination"
                                 currentPage={currentPage}
@@ -217,14 +218,14 @@ import { useEffect, useState } from "react";
                         <div className="overflow-x-auto mt-5">
                             <table className="min-w-full bg-white">
                                 <thead>
-                                    <tr className="bg-gray-200 text-gray-950 text-sm leading-normal">
+                                <tr className="bg-gray-200 text-gray-950 text-sm leading-normal">
                                         <th className="py-2 px-2 text-left">Tuyến đường báo cáo</th>
                                         <th className="py-2 px-2 text-left">Tình trạng giao thông</th>
                                         <th className="py-2 px-2 text-left">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody className="text-gray-600 text-sm font-light">
-                                    {reportUser?.map((rUser) => (
+                                {reportUser?.map((rUser) => (
                                         <tr key={rUser?._id} className="border-b border-gray-200 hover:bg-gray-100">
                                             <td className="py-2 px-2 text-left font-bold">{rUser?.traffic_route?.route_name}</td>
                                             <td className="py-2 px-2 text-red-500 font-bold">{rUser?.traffic_status}</td>
@@ -291,7 +292,7 @@ import { useEffect, useState } from "react";
                             <Modal.Body className="space-y-6" style={{ margin: '20px' }}>
                                 <div>
                                     <div className='mb-6'>
-                                        <Label htmlFor='routerName' value='Tuyến đường báo cáo' />
+                                    <Label htmlFor='routerName' value='Tuyến đường báo cáo' />
                                         <TextInput
                                             id='routerName'
                                             value={reportUserData?.traffic_route.route_name}
@@ -299,7 +300,7 @@ import { useEffect, useState } from "react";
                                         />
                                     </div>
                                     <div className='mb-6'>
-                                        <Label htmlFor='userId' value='Báo cáo bởi' />
+                                    <Label htmlFor='userId' value='Báo cáo bởi' />
                                         <TextInput id='userId'
                                             value={reportUserData?._id}
                                             readOnly={true}
@@ -307,14 +308,14 @@ import { useEffect, useState } from "react";
                                     </div>
                                     <div className="flex gap-6 justify-between">
                                         <div className='mb-6 w-1/2'>
-                                            <Label htmlFor='statusTraffic' value='Tình trạng giao thông từ báo cáo người dùng' />
+                                        <Label htmlFor='statusTraffic' value='Tình trạng giao thông từ báo cáo người dùng' />
                                             <TextInput id='statusTraffic'
                                                 value={reportUserData?.traffic_status}
                                                 readOnly={true}
                                             />
                                         </div>
                                         <div className='mb-6 w-1/2'>
-                                            <Label htmlFor='currentStatusTraffic' value='Tình trạng giao thông hiện tại' />
+                                        <Label htmlFor='currentStatusTraffic' value='Tình trạng giao thông hiện tại' />
                                             <TextInput
                                                 id='currentStatusTraffic'
                                                 value={reportUserData?.traffic_status}
@@ -324,7 +325,7 @@ import { useEffect, useState } from "react";
                                     </div>
                                     <div className="flex gap-6 justify-between">
                                         <div className='mb-6 w-1/2'>
-                                            <Label htmlFor='time' value='Thời gian' />
+                                        <Label htmlFor='time' value='Thời gian' />
                                             <TextInput
                                                 id='time'
                                                 value={reportUserData?.created_at}
@@ -345,7 +346,7 @@ import { useEffect, useState } from "react";
                                         />
                                     </div>
                                     <div className="flex" style={{ justifyContent: 'space-evenly', margin: '0 20%' }}>
-                                        <Button color="failure" onClick={() => handleDeleteReportUser()}>
+                                    <Button color="failure" onClick={() => handleDeleteReportUser()}>
                                             Từ chối
                                         </Button>
                                         <Button type="submit" onClick={() => handleConfirmReportUser()}>

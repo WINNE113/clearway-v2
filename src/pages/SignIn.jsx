@@ -39,7 +39,7 @@ export default function SignIn() {
         }else if(data.role === 1){
           navigate('/generaluser/dashboard?tab=upgrade-account');
         }else if(data.role === 2){
-          navigate('/profilecomporate');
+          navigate('/profileadmin?tab=profile');
         }else{
           navigate('/trafficauthority/dashboard?tab=manage-traffic-status');
         }
@@ -59,7 +59,7 @@ export default function SignIn() {
             </span>
             Way
           </Link>
-          <p className="text-sm mt-5 dark:text-gray-300">You can sign in with your email and password or with Google</p>
+          <p className="text-sm mt-5 dark:text-gray-300">Bạn có thể đăng nhập bằng email và mật khẩu hoặc bằng Google</p>
         </div>
         <div className="flex-1">
           <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
@@ -74,7 +74,7 @@ export default function SignIn() {
               />
             </div>
             <div>
-            <span style={{ color: 'dark:text-gray-200' }}>Password</span>
+            <span style={{ color: 'dark:text-gray-200' }}>Mật khẩu</span>
               <TextInput
                 type="password"
                 placeholder="**********"
@@ -90,15 +90,20 @@ export default function SignIn() {
                   <span className="pl-3">Loading...</span>
                 </>
               ) : (
-                "Sign In"
+                "Đăng nhập"
               )}
             </Button>
             <OAuth />
           </form>
           <div className="flex gap-2 text-sm mt-5 dark:text-gray-300">
-            <span>Don&#x27;t have an account?</span>
+            <span>Bạn chưa có tài khoản?</span>
             <Link to="/sign-up" className="text-blue-500 dark:text-blue-400">
-              Sign Up
+              Đăng ký
+            </Link>
+          </div>
+          <div className="flex gap-2 text-sm mt-2 dark:text-gray-300">
+            <Link to="/forget-password" className="text-red-500 dark:text-blue-400">
+              Quên mật khẩu?
             </Link>
           </div>
           {errorMessage && (

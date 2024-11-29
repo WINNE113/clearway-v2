@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button, TextInput } from "flowbite-react";
+import { Button, TextInput, Label } from "flowbite-react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { resetpassword } from "../service/UserAPI"
 const ReNewPassword = () => {
@@ -50,7 +50,7 @@ const ReNewPassword = () => {
 
 
     return (
-        <div className="w-full flex flex-col items-center gap-8 mt-28">
+        <div className="min-h-screen flex items-center justify-center dark:bg-gray-900 dark:text-white">
             <div className="flex flex-row w-full justify-center items-center">
                 <div className="w-1/2 flex justify-center items-center">
                     <img src="../../public/logo.svg" className="w-72 max-h-80 object-cover" alt="logo image" />
@@ -58,10 +58,10 @@ const ReNewPassword = () => {
                 <div className="w-1/2 flex justify-center items-center">
                     <form onSubmit={handleSubmit} className="rounded-lg shadow-sm inset-0 p-8 flex flex-col gap-8 w-[500px]">
                         <img src="../../public/logo.svg" className="object-cover mt-6 w-14 h-14 flex justify-center items-center mx-auto" alt="logo"/>
-                        <h2 className="text-3xl text-gray-700 tracking-tight font-bold m-auto">Forget Password</h2>
+                        <h2 className="text-3xl text-gray-700 tracking-tight font-bold m-auto">Đổi mật khẩu mới</h2>
                         <div className="relative">
+                            <Label className="text-lg" value="Nhập mật khẩu mới"/>
                             <TextInput
-                                label="Password"
                                 textColor="#333333"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -69,14 +69,14 @@ const ReNewPassword = () => {
                                 fullWidth
                                 placeholder="**************"
                             />
-                            <button type="button" className="absolute inset-y-0 mt-8 right-0 pr-3 flex items-center" onClick={() => setShowPassword(!showPassword)}>
+                            <button type="button" className="absolute inset-y-0 right-0 mt-6 pr-3 flex items-center" onClick={() => setShowPassword(!showPassword)}>
                                 {showPassword ? <FaEyeSlash className="h-5 w-5 text-gray-400" /> : <FaEye className="h-5 w-5 text-gray-400" />}
                             </button>
                             {errors.password && <span className="text-red-500">{errors.password}</span>}
                         </div>
                         <div className="relative">
+                            <Label className="text-lg" value="Nhập lại mật khẩu mới"/>
                             <TextInput
-                                label="Re-enter password"
                                 textColor="#333333"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -84,13 +84,13 @@ const ReNewPassword = () => {
                                 fullWidth
                                 placeholder="**************"
                             />
-                            <button type="button" className="absolute inset-y-0 mt-8 right-0 pr-3 flex items-center" onClick={() => setShowRePassword(!showRePassword)}>
+                            <button type="button" className="absolute inset-y-0 right-0 mt-6 pr-3 flex items-center" onClick={() => setShowRePassword(!showRePassword)}>
                                 {showRePassword ? <FaEyeSlash className="h-5 w-5 text-gray-400" /> : <FaEye className="h-5 w-5 text-gray-400" />}
                             </button>
                             {errors.confirmPassword && <span className="text-red-500">{errors.confirmPassword}</span>}
                         </div>
                         <Button type="submit" fullWidth className="mt-3 rounded-full" disabled={isLoading}>
-                            {isLoading ? "Loading..." : "Re-set Password"}
+                            {isLoading ? "Loading..." : "Đổi mật khẩu mới"}
                         </Button>
                     </form>
                 </div>

@@ -17,7 +17,6 @@ const ManagePayments = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedUid, setSelectedUid] = useState(null);
     const [message, setMessage] = useState(null);
-
     const [userPayment, setUserPayment] = useState([])
 
     const [packageData, setPackageData] = useState({
@@ -27,9 +26,7 @@ const ManagePayments = () => {
         price: 0,
         timePackage: 1,
     });
-
     const [userPaymentData, setUserPaymentData] = useState(null);
-
     // Sample data
     const userDataTabs = [
         {
@@ -139,7 +136,6 @@ const ManagePayments = () => {
             setLoading(false);
         }
     }
-
     const handleUpdateUserPayment = async () => {
         try {
             const formData = {
@@ -156,6 +152,7 @@ const ManagePayments = () => {
         }
     }
 
+
     const fetchPrimiumPackage = async () => {
         try {
             const response = await getPrimiumPackages();
@@ -166,7 +163,6 @@ const ManagePayments = () => {
             setLoading(false);
         }
     };
-
     const fetchUserPayment = async () => {
         try {
             setLoading(true);
@@ -266,19 +262,15 @@ const ManagePayments = () => {
                                 </tr>
                             </thead>
                             <tbody className="text-gray-950 text-sm font-light">
-                                {userDataTabs.find(tab => tab.value === activeTab)?.data?.map((payment) => (
+                            {userDataTabs.find(tab => tab.value === activeTab)?.data?.map((payment) => (
                                     <tr key={payment?.order_code || payment?._id} className="border-b border-gray-200 hover:bg-gray-100">
                                         <td className="py-1 px-2 text-left whitespace-nowrap">{payment?.order_code || "N/A"}</td>
                                         <td className="py-1 px-2 text-left whitespace-nowrap">{payment?.created_at || "N/A"}</td>
                                         <td className="py-1 px-2 text-left whitespace-nowrap">{payment?.user?.username || "Chưa xác định"}</td>
                                         <td className="py-1 px-2 text-left whitespace-nowrap">{payment?.user?.email || "Không có email"}</td>
                                         <td className="py-1 px-2 text-left whitespace-nowrap">{payment?.user?.phone_number || "Không có số điện thoại"}</td>
-                                        <td className="py-1 px-2 text-left whitespace-nowrap">
-                                            {payment?.premium_package?.name_package || "Chưa đăng ký gói"}
-                                        </td>
-                                        <td className={`py-1 px-2 text-left whitespace-nowrap ${payment?.status_package ? "text-green-700" : "text-red-600"}`}>
-                                            {payment?.status_package === true ? "Đang hoạt động" : "Hết hạn"}
-                                        </td>
+                                        <td className="py-1 px-2 text-left whitespace-nowrap">{payment?.premium_package?.name_package || "Chưa đăng ký gói"}</td>
+                                        <td className={`py-1 px-2 text-left whitespace-nowrap ${payment?.status_package ? "text-green-700" : "text-red-600"}`}>{payment?.status_package === true ? "Đang hoạt động" : "Hết hạn"}</td>
                                         <td className="py-1 px-2 flex space-x-4 justify-center items-center mt-5">
                                             <button
                                                 onClick={() => handleEditUser(payment)}
@@ -286,7 +278,7 @@ const ManagePayments = () => {
                                                 title="Chỉnh sửa người dùng"
                                             >
                                                 <FaRegEdit />
-                                            </button>
+                                            </button> 
                                         </td>
                                     </tr>
                                 ))}
@@ -415,7 +407,6 @@ const ManagePayments = () => {
                                         id="code"
                                         placeholder="Nhập mã đơn hàng"
                                         value={userPaymentData?.order_code}
-
                                     />
                                 </div>
                                 <div>
@@ -432,7 +423,7 @@ const ManagePayments = () => {
                 </Modal.Body>
                 <Modal.Footer>
                     <div className="flex items-center justify-center space-x-5">
-                        <Button onClick={() => handleUpdateUserPayment()}>Update</Button>
+                    <Button onClick={() => handleUpdateUserPayment()}>Update</Button>
                         <Button className="bg-red-500 text-white" onClick={() => setOpenModalUser(false)}>
                             Cancel
                         </Button>

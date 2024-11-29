@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { DashSidebar, Header } from "../../components/index";
-import { ProfileGenral, UpgradeAccount} from "../index"
+import {  UpgradeAccount} from "../index"
+import ProfileAdmin from "../Admin/ProfileAdmin";
 
 export default function Dashboard() {
   const location = useLocation();
@@ -25,7 +26,7 @@ export default function Dashboard() {
           {/* Home... */}
           {tab === "home"}
           {/* Profile... */}
-          {tab === "profile" && <ProfileGenral />}
+          {tab === "profile" && <ProfileAdmin />}
           {/* Upgrade Account... */}
           {tab === "upgrade-account" && <UpgradeAccount/>}
         </div>

@@ -212,7 +212,7 @@ const ManageUser = () => {
     }
 
     return (
-        <main className="m-9 h-full">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
             <div className=" bg-white rounded-lg shadow-md p-6" style={{ height: '580px'}}>
                 <div className="flex justify-between">
                     <div>

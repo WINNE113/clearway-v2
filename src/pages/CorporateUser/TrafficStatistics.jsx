@@ -192,7 +192,6 @@ const TrafficStatistics = () => {
                 </div>
               </div>
             </div>
-
           </Card>
         </div>
         {/* Danh sách tuyến đường */}
