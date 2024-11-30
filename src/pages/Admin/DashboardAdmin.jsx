@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { DashSidebar, Header } from "../../components/index"
-import { ManageUser, ManageRoutes, ManageTrafficStatus, ManageCamera, ManageNotification, ManageReport, ManageTrafficSigns, ManagePayments,} from "../index"
+import { ManageUser, ManageRoutes, ManageTrafficStatus, ManageCamera, ManageNotification, ManageReport, ManageTrafficSigns, ManagePayments} from "../index"
 import Overview from "./Overview";
 
 

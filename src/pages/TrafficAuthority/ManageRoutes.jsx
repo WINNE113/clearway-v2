@@ -1,196 +1,347 @@
-import { useState } from "react";
-import { IoMdAdd } from "react-icons/io";
-import { FaRegEdit } from "react-icons/fa";
-import { Button, Modal, TextInput, Label } from "flowbite-react";
+import { useState, useEffect } from 'react'
+import { Table, Button, Modal, Label, TextInput, Select } from 'flowbite-react'
+import GoogleMapReact from 'google-map-react'
+import Marker from '../../components/Marker'
+import { getRoads, createRoad, createRouter } from '../../service/RouterAPI'
+
 
 const ManageRoutes = () => {
-    const [openModal, setOpenModal] = useState(false);
-    const [isEdit, setIsEdit] = useState(false);
+  const [trafficRoads, setTrafficRoads] = useState([])
+  const [selectedRoad, setSelectedRoad] = useState(null)
+  const [showRouteModal, setShowRouteModal] = useState(false)
+  const [showRoadModal, setShowRoadModal] = useState(false)
+  const [mapCenter, setMapCenter] = useState({ lat: 15.983279, lng: 108.255955 })
+  const [mapZoom, setMapZoom] = useState(14)
+  const [roadData, setRoadData] = useState({
+    name_road: '',
+    list_route: [],
+  })
+  const [routeData, setRouteData] = useState({
+    route_name: '',
+    start_location: ['', ''],
+    end_location: ['', ''],
+    traffic_status: 'Bình Thường',
+    connect_camera: false,
+    min_speed_route: 0,
+    max_speed_route: 0,
+    type_route: 'Đường Chính',
+  })
 
-    const routers = [
-        {
-            id: 1,
-            streetName: "Đường A",
-            startAddress: "A",
-            endAddress: "C",
-            district: "300",
-            vehicle: "Xe máy",
-            estimateTime: "20",
-            trafficStatue: "Bình thường"
-        },
-        {
-            id: 2,
-            streetName: "Đường A",
-            startAddress: "A",
-            endAddress: "C",
-            district: "300",
-            vehicle: "Xe máy",
-            estimateTime: "20",
-            trafficStatue: "Tắt đường"
-        },
-        {
-            id: 3,
-            streetName: "Đường A",
-            startAddress: "A",
-            endAddress: "C",
-            district: "300",
-            vehicle: "Xe máy",
-            estimateTime: "20",
-            trafficStatue: "Ngập nước"
-        },
-        {
-            id: 4,
-            streetName: "Đường A",
-            startAddress: "A",
-            endAddress: "C",
-            district: "300",
-            vehicle: "Xe máy",
-            estimateTime: "20",
-            trafficStatue: "Tai nạn giao thông"
-        }
-    ];
 
-    const handleAddNew = () => {
-        setIsEdit(false);
-        setOpenModal(true);
-    };
+  const handleChangeDataRoad = (e) => {
+    const { name, value } = e.target
+    setRoadData(prev => ({ ...prev, [name]: value }))
+  }
 
-    const handleEdit = () => {
-        setIsEdit(true);
-        setOpenModal(true);
-    };
+  const handleChangeDataRouter = (e) => {
+    const { name, value } = e.target
+    setRouteData(prev => ({ ...prev, [name]: value }))
+  }
 
-    return (
-        <main className="mx-9 my-9">
-            <div className="grid">
-                <div className="col-span-2">
-                    <div className="bg-white rounded-lg shadow-sm p-3">
-                        <div className="grid grid-cols-4 gap-2">
-                            <div className="bg-gray-100 p-4 rounded-lg shadow-md col-span-1 flex flex-col items-center">
-                                <h2 className="text-lg font-bold">Tuyến đường</h2>
-                                <span className="text-lg font-bold">9</span>
-                            </div>
-                            <div className="bg-gray-100 p-4 rounded-lg shadow-md col-span-1 text-rose-500 flex flex-col items-center">
-                                <h2 className="text-lg font-bold">Kẹt xe</h2>
-                                <span className="text-lg font-bold">2</span>
-                            </div>
-                            <div className="bg-gray-100 p-4 rounded-lg shadow-md col-span-1 text-orange-600 flex flex-col items-center">
-                                <h2 className="text-lg font-bold">Nước gập</h2>
-                                <span className="text-lg font-bold">3</span>
-                            </div>
-                            <div className="bg-gray-100 p-4 rounded-lg shadow-md col-span-1 text-red-700 flex flex-col items-center">
-                                <h2 className="text-lg font-bold">Tai nạn giao thông</h2>
-                                <span className="text-lg font-bold">4</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-white rounded-lg shadow-md p-6 mt-10">
-                        <div className="flex justify-between mb-6">
-                            <div>
-                                <h2 className="text-xl font-bold mb-4">Thông tin các tuyến đường</h2>
-                            </div>
-                            <div className="flex items-center h-10">
-                                <Button onClick={handleAddNew}>
-                                    <IoMdAdd size={20} className="text-white" /> Add New
-                                </Button>
-                            </div>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full bg-white">
-                                <thead>
-                                    <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                                        <th className="py-3 px-6 text-left">RoadID</th>
-                                        <th className="py-3 px-6 text-left">Tên Đường</th>
-                                        <th className="py-3 px-6 text-left">Địa điểm bắt đầu</th>
-                                        <th className="py-3 px-6 text-left">Địa điểm kết thúc</th>
-                                        <th className="py-3 px-6 text-left">Khoảng cách</th>
-                                        <th className="py-3 px-6 text-left">Phương tiện</th>
-                                        <th className="py-3 px-6 text-left">Thời gian ước tính hoàn thành</th>
-                                        <th className="py-3 px-6 text-left">Tình trạng tuyến đường</th>
-                                        <th className="py-3 px-6 text-left">Cập nhật</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="text-gray-950 text-sm font-light">
-                                    {routers.map((router) => (
-                                        <tr key={router.id} className="border-b border-gray-200 hover:bg-gray-100">
-                                            <td className="py-3 px-6 text-left whitespace-nowrap">{router.id}</td>
-                                            <td className="py-3 px-6 text-left">{router.streetName}</td>
-                                            <td className="py-3 px-6 text-left">{router.startAddress}</td>
-                                            <td className="py-3 px-6 text-left">{router.endAddress}</td>
-                                            <td className="py-3 px-6 text-left">{router.district}Km</td>
-                                            <td className="py-3 px-6 text-left">{router.vehicle}</td>
-                                            <td className="py-3 px-6 text-left">{router.estimateTime}p</td>
-                                            <td className={`py-3 px-6 text-left ${router.trafficStatue === "Tắt đường" ? "text-red-700" : ""}`}>{router.trafficStatue}</td>
-                                            <td className="py-3 px-6 text-left flex flex-row space-x-4">
-                                                <FaRegEdit onClick={handleEdit} size={20} />
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+  const handleLocationChange = (locationType, index, value) => {
+    setRouteData((prevData) => ({
+      ...prevData,
+      [locationType]: [
+        ...prevData[locationType].slice(0, index),
+        value,
+        ...prevData[locationType].slice(index + 1),
+      ],
+    }));
+  };
+
+  useEffect(() => {
+    fetchTrafficRoads()
+  }, [])
+
+  useEffect(() => {
+    if (selectedRoad && selectedRoad.routes.length > 0) {
+      const lats = selectedRoad.routes.flatMap(route => [parseFloat(route.start_location[0]), parseFloat(route.end_location[0])])
+      const lngs = selectedRoad.routes.flatMap(route => [parseFloat(route.start_location[1]), parseFloat(route.end_location[1])])
+      const minLat = Math.min(...lats)
+      const maxLat = Math.max(...lats)
+      const minLng = Math.min(...lngs)
+      const maxLng = Math.max(...lngs)
+      setMapCenter({
+        lat: (minLat + maxLat) / 2,
+        lng: (minLng + maxLng) / 2
+      })
+      setMapZoom(13) // Adjust this value to fit all markers
+    }
+  }, [selectedRoad])
+
+  const fetchTrafficRoads = async () => {
+    try {
+      const response = await getRoads();
+      if (response && response.data) {
+        setTrafficRoads(response.data)
+      } else {
+        setTrafficRoads([])
+      }
+    } catch (error) {
+      console.error('Error fetching traffic roads:', error)
+    }
+  }
+
+  const handleAddRoute = async (e) => {
+    try {
+      e.preventDefault();
+      const response = await createRouter(routeData);
+      setShowRouteModal(false)
+      fetchTrafficRoads()
+    } catch (error) {
+      console.error('Error adding route:', error)
+    }
+  }
+
+  const handleAddRoad = async (e) => {
+    try {
+      e.preventDefault();
+      const response = await createRoad(roadData)
+      setShowRoadModal(false)
+      fetchTrafficRoads()
+
+    } catch (error) {
+      console.error('Error adding road:', error)
+    }
+  }
+
+  return (
+    <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
+      <div className="grid grid-cols-3 gap-6">
+        <div className="col-span-2">
+          <div className="bg-white p-3">
+            <div className="flex justify-between">
+              <div>
+                <h2 className="text-xl mb-1 font-bold">Danh sách các tuyến đường</h2>
+              </div>
+              <div className="flex items-center">
+                <button className="relative inline-flex items-center justify-center p-0.5 mb-1 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800" onClick={() => setShowRouteModal(true)}>
+                  <span className="relative px-5 py-1 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+                    Add Route
+                  </span>
+                </button>
+                <button className="relative inline-flex items-center justify-center p-0.5 mb-1 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800" onClick={() => setShowRoadModal(true)}>
+                  <span className="relative px-5 py-1 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+                    Add Road
+                  </span>
+                </button>
+              </div>
             </div>
+            <Table>
+              <Table.Head>
+                <Table.HeadCell>Tên đường chính</Table.HeadCell>
+                <Table.HeadCell>Số đường phụ</Table.HeadCell>
+                <Table.HeadCell>Ngày tạo</Table.HeadCell>
+                <Table.HeadCell>Actions</Table.HeadCell>
+              </Table.Head>
+              <Table.Body className="divide-y">
+                {trafficRoads?.map((road) => (
+                  <Table.Row key={road._id}>
+                    <Table.Cell>{road.name_road}</Table.Cell>
+                    <Table.Cell>{road.routes.length}</Table.Cell>
+                    <Table.Cell>{road.created_at}</Table.Cell>
+                    <Table.Cell>
+                      <Button onClick={() => setSelectedRoad(road)}>Chi tiết</Button>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
+            {selectedRoad && (
+              <div className="mt-4">
+                <h2 className="text-xl font-bold mb-2">Thông tin:  {selectedRoad.name_road}</h2>
+                <Table>
+                  <Table.Head>
+                    <Table.HeadCell>Tên đường</Table.HeadCell>
+                    <Table.HeadCell>Ngày tạo</Table.HeadCell>
+                    <Table.HeadCell>Kết nối camera</Table.HeadCell>
+                    <Table.HeadCell>Tình trạng tuyến đường</Table.HeadCell>
+                    <Table.HeadCell>Tốc độ cho phép</Table.HeadCell>
+                    <Table.HeadCell>Thể loại</Table.HeadCell>
+                  </Table.Head>
+                  <Table.Body className="divide-y">
+                    {selectedRoad?.routes?.map((route) => (
+                      <Table.Row key={route._id}>
+                        <Table.Cell>{route.route_name}</Table.Cell>
+                        <Table.Cell>{route.created_at}</Table.Cell>
+                        <Table.Cell>{route.connect_camera === false ? "Không có kết nối" : "Có kết nối"}</Table.Cell>
+                        <Table.Cell>{route.traffic_status}</Table.Cell>
+                        <Table.Cell>{route.min_speed_route} - {route.max_speed_route} (km/h)</Table.Cell>
+                        <Table.Cell>{route.type_route}</Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table>
 
-            {/* Modal */}
-            <Modal show={openModal} onClose={() => setOpenModal(false)}>
-                <Modal.Header>
-                    <p className="text-xl font-bold">{isEdit ? "Cập nhật tuyến đường" : "Tạo tuyến đường"}</p>
-                </Modal.Header>
-                <Modal.Body>
-                    <form className="bg-white">
-                        <div className="flex flex-col space-y-4">
-                            <div>
-                                <Label htmlFor="name" value="Tên đường" />
-                                <TextInput
-                                    id="name"
-                                    placeholder="Nhập tên đường"
-                                />
-                            </div>
-                            <div>
-                                <Label htmlFor="startAddress" value="Địa điểm bắt đầu" />
-                                <TextInput
-                                    id="startAddress"
-                                    placeholder="Nhập địa điểm bắt đầu"
-                                />
-                            </div>
-                            <div>
-                                <Label htmlFor="endAddress" value="Địa điểm kết thúc" />
-                                <TextInput
-                                    id="endAddress"
-                                    placeholder="Nhập địa điểm kết thúc"
-                                />
-                            </div>
-                            <div>
-                                <Label htmlFor="transport" value="Phương tiện" />
-                                <TextInput
-                                    id="transport"
-                                    placeholder="Nhập phương tiện di chuyển"
-                                />
-                            </div>
-                            <div>
-                                <Label htmlFor="district" value="Khoảng cách" />
-                                <TextInput
-                                    id="district"
-                                    placeholder="Nhập khoảng cách"
-                                    type="number"
-                                />
-                            </div>
-                        </div>
-                    </form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <div className="flex items-center justify-center space-x-5">
-                        <Button onClick={() => setOpenModal(false)}>{isEdit ? "Update" : "Create"}</Button>
-                        <Button className="bg-red-500 text-white" onClick={() => setOpenModal(false)}>
-                            Cancel
-                        </Button>
-                    </div>
-                </Modal.Footer>
+              </div>
+            )}
+
+            <Modal show={showRouteModal} onClose={() => setShowRouteModal(false)}>
+              <Modal.Header>Tạo tuyến đường nhỏ</Modal.Header>
+              <Modal.Body>
+                <form className="space-y-4">
+                  <div>
+                    <Label htmlFor="route_name">Tên đường</Label>
+                    <TextInput
+                      id="route_name"
+                      name="route_name"
+                      value={routeData.route_name}
+                      onChange={handleChangeDataRouter}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="start_lat">Vĩ độ bắt đầu</Label>
+                    <TextInput
+                      id="start_lat"
+                      name="start_location[0]"
+                      value={routeData.start_location[0]}
+                      onChange={(e) => handleLocationChange("start_location", 0, e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="start_lng">Kinh độ bắt đầu</Label>
+                    <TextInput
+                      id="start_lng"
+                      name="start_location[1]"
+                      value={routeData.start_location[1]}
+                      onChange={(e) => handleLocationChange("start_location", 1, e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="end_lat">Vĩ độ kết thúc</Label>
+                    <TextInput
+                      id="end_lat"
+                      name="end_location[0]"
+                      value={routeData.end_location[0]}
+                      onChange={(e) => handleLocationChange("end_location", 0, e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="end_lng">Kinh độ kết thúc</Label>
+                    <TextInput
+                      id="end_lng"
+                      name="end_location[1]"
+                      value={routeData.end_location[1]}
+                      onChange={(e) => handleLocationChange("end_location", 1, e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="min_speed_route">Tốc độ tối thiểu</Label>
+                    <TextInput
+                      id="min_speed_route"
+                      name="min_speed_route"
+                      type='number'
+                      value={routeData.min_speed_route}
+                      onChange={handleChangeDataRouter}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="max_speed_route">Tốc độ tối đa</Label>
+                    <TextInput
+                      id="max_speed_route"
+                      name="max_speed_route"
+                      type='number'
+                      value={routeData.max_speed_route}
+                      onChange={handleChangeDataRouter}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="traffic_status">Trạng thái tuyến đường</Label>
+                    <Select
+                      id="traffic_status"
+                      name="traffic_status"
+                      value={routeData.traffic_status}
+                      onChange={handleChangeDataRouter}
+                    >
+                      <option value="Bình Thường">Bình Thường</option>
+                      <option value="Ùn Tắc">Ùn Tắc</option>
+                      <option value="Tai Nạn">Tai Nạn</option>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="type_route">Thể loại tuyến đường</Label>
+                    <Select
+                      id="type_route"
+                      name="type_route"
+                      value={routeData.type_route}
+                      onChange={handleChangeDataRouter}
+                    >
+                      <option value="Đường Chính">Đường Chính</option>
+                      <option value="Đường Phụ">Đường Phụ</option>
+                    </Select>
+                  </div>
+                </form>
+              </Modal.Body>
+              <Modal.Footer>
+                <div className="flex items-center justify-center w-full gap-16">
+                  <Button className="bg-[#B80707] text-white w-32" onClick={() => setShowRouteModal(false)}> Hủy </Button>
+                  <Button className='bg-[#4B49AC] text-white w-32' onClick={handleAddRoute}> Tạo </Button>
+                </div>
+              </Modal.Footer>
             </Modal>
-        </main>
-    );
-};
 
-export default ManageRoutes;
+            <Modal show={showRoadModal} onClose={() => setShowRoadModal(false)}>
+              <Modal.Header>Tạo tuyến đường lớn</Modal.Header>
+              <Modal.Body>
+                <form className="space-y-4">
+                  <div>
+                    <Label htmlFor="name_road">Road Name</Label>
+                    <TextInput
+                      id="name_road"
+                      name="name_road"
+                      value={roadData.name_road}
+                      onChange={handleChangeDataRoad}
+                      required
+                    />
+                  </div>
+                </form>
+              </Modal.Body>
+              <Modal.Footer>
+                <div className="flex items-center justify-center w-full gap-16">
+                  <Button className="bg-[#B80707] text-white w-32" onClick={() => setShowRoadModal(false)}> Hủy </Button>
+                  <Button className='bg-[#4B49AC] text-white w-32' onClick={handleAddRoad}> Tạo </Button>
+                </div>
+              </Modal.Footer>
+            </Modal>
+          </div>
+        </div>
+        <div className="col-span-1">
+          <div style={{ height: '400px', width: '100%' }}>
+            <GoogleMapReact
+              bootstrapURLKeys={{ key: import.meta.env.VITE_GOOGLE_MAPS_KEY }}
+              center={mapCenter}
+              zoom={mapZoom}
+            >
+              {selectedRoad?.routes.map((route) => (
+                <>
+                  <Marker
+                    key={`start-${route._id}`}
+                    lat={parseFloat(route.start_location[0])}
+                    lng={parseFloat(route.start_location[1])}
+                    text="S"
+                  />
+                  <Marker
+                    key={`end-${route._id}`}
+                    lat={parseFloat(route.end_location[0])}
+                    lng={parseFloat(route.end_location[1])}
+                    text="E"
+                  />
+                </>
+              ))}
+            </GoogleMapReact>
+          </div>
+        </div>
+      </div>
+    </main>
+  )
+}
+
+export default ManageRoutes
+
