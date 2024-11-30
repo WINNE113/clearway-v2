@@ -2,17 +2,27 @@ import { useState, useEffect } from 'react'
 import { Table, Button, Modal, Label, TextInput, Select } from 'flowbite-react'
 import GoogleMapReact from 'google-map-react'
 import Marker from '../../components/Marker'
-import { getRoads, createRoad, createRouter } from '../../service/RouterAPI'
-
+import { getRoads, createRoad, createRouter, updateRoad, deleteRoad } from '../../service/RouterAPI'
+import { FaRegEdit } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 
 const ManageRoutes = () => {
+  const [loading, setLoading] = useState(true);
   const [trafficRoads, setTrafficRoads] = useState([])
   const [selectedRoad, setSelectedRoad] = useState(null)
   const [showRouteModal, setShowRouteModal] = useState(false)
   const [showRoadModal, setShowRoadModal] = useState(false)
   const [mapCenter, setMapCenter] = useState({ lat: 15.983279, lng: 108.255955 })
   const [mapZoom, setMapZoom] = useState(14)
+  const [isEditRoad, setIsEditRoad] = useState(false);
+  const [selectedUid, setSelectedUid] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [message, setMessage] = useState(null);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+
   const [roadData, setRoadData] = useState({
+    id: '',
     name_road: '',
     list_route: [],
   })
@@ -38,6 +48,25 @@ const ManageRoutes = () => {
     setRouteData(prev => ({ ...prev, [name]: value }))
   }
 
+
+
+  const handleConfirmUpdateRoad = async () => {
+    try {
+      var formDta = {
+        name_road: roadData.name_road
+      }
+      console.log("Road: " + JSON.stringify(roadData))
+      const res = await updateRoad(formDta, roadData?._id);
+      setShowRoadModal(false);
+      fetchTrafficRoads();
+    } catch (error) {
+      setMessage(`Đã xảy ra lỗi không mong muốn. Vui lòng thử lại. ${error}`);
+      setShowMessageModal(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const handleLocationChange = (locationType, index, value) => {
     setRouteData((prevData) => ({
       ...prevData,
@@ -49,9 +78,34 @@ const ManageRoutes = () => {
     }));
   };
 
-  useEffect(() => {
-    fetchTrafficRoads()
-  }, [])
+
+  const handleUpdateRoad = async (road) => {
+    setIsEditRoad(true);
+    setShowRoadModal(true);
+    setRoadData(road);
+  };
+
+  const handleShowModelAddRoad = () => {
+    setIsEditRoad(false)
+    setShowRoadModal(true)
+  }
+
+  const handleDelete = (uid) => {
+    setSelectedUid(uid);
+    setIsModalOpen(true);
+  }
+
+  const handleDeleteRoad = async () => {
+    try {
+      const response = await deleteRoad(selectedUid);
+      setIsModalOpen(false);
+      fetchTrafficRoads();
+    } catch (error) {
+      setMessage(`Đã xảy ra lỗi không mong muốn. Vui lòng thử lại. ${error}`);
+      setShowMessageModal(true);
+    }
+  };
+
 
   useEffect(() => {
     if (selectedRoad && selectedRoad.routes.length > 0) {
@@ -105,6 +159,10 @@ const ManageRoutes = () => {
     }
   }
 
+  useEffect(() => {
+    fetchTrafficRoads()
+  }, [])
+
   return (
     <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
       <div className="grid grid-cols-3 gap-6">
@@ -120,7 +178,7 @@ const ManageRoutes = () => {
                     Add Route
                   </span>
                 </button>
-                <button className="relative inline-flex items-center justify-center p-0.5 mb-1 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800" onClick={() => setShowRoadModal(true)}>
+                <button className="relative inline-flex items-center justify-center p-0.5 mb-1 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800" onClick={() => handleShowModelAddRoad()}>
                   <span className="relative px-5 py-1 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
                     Add Road
                   </span>
@@ -132,7 +190,8 @@ const ManageRoutes = () => {
                 <Table.HeadCell>Tên đường chính</Table.HeadCell>
                 <Table.HeadCell>Số đường phụ</Table.HeadCell>
                 <Table.HeadCell>Ngày tạo</Table.HeadCell>
-                <Table.HeadCell>Actions</Table.HeadCell>
+                <Table.HeadCell>Xem chi tiết</Table.HeadCell>
+                <Table.HeadCell>Hành động</Table.HeadCell>
               </Table.Head>
               <Table.Body className="divide-y">
                 {trafficRoads?.map((road) => (
@@ -142,6 +201,11 @@ const ManageRoutes = () => {
                     <Table.Cell>{road.created_at}</Table.Cell>
                     <Table.Cell>
                       <Button onClick={() => setSelectedRoad(road)}>Chi tiết</Button>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <button onClick={() => handleUpdateRoad(road)} className="w-6 h-6 text-black"><FaRegEdit /></button>
+                      <button onClick={() => handleDelete(road._id)} className="w-6 h-6 text-red-600"><MdDelete />
+                      </button>
                     </Table.Cell>
                   </Table.Row>
                 ))}
@@ -288,7 +352,7 @@ const ManageRoutes = () => {
             </Modal>
 
             <Modal show={showRoadModal} onClose={() => setShowRoadModal(false)}>
-              <Modal.Header>Tạo tuyến đường lớn</Modal.Header>
+              <Modal.Header>{isEditRoad ? "Cập nhật tuyến đường lớn" : "Tạo tuyến đường lớn"}</Modal.Header>
               <Modal.Body>
                 <form className="space-y-4">
                   <div>
@@ -306,7 +370,7 @@ const ManageRoutes = () => {
               <Modal.Footer>
                 <div className="flex items-center justify-center w-full gap-16">
                   <Button className="bg-[#B80707] text-white w-32" onClick={() => setShowRoadModal(false)}> Hủy </Button>
-                  <Button className='bg-[#4B49AC] text-white w-32' onClick={handleAddRoad}> Tạo </Button>
+                  <Button className='bg-[#4B49AC] text-white w-32' onClick={isEditRoad ? handleConfirmUpdateRoad : handleAddRoad}> {isEditRoad ? "Cập nhật" : "Tạo"} </Button>
                 </div>
               </Modal.Footer>
             </Modal>
@@ -339,6 +403,33 @@ const ManageRoutes = () => {
           </div>
         </div>
       </div>
+      <Modal show={showMessageModal} onClose={() => setShowMessageModal(false)} popup size='md'>
+        <Modal.Header />
+        <Modal.Body>
+          <div className='text-center'>
+            <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-400'>
+              {message}
+            </h3>
+            <div className='flex justify-center gap-4'>
+              <Button color='gray' onClick={() => setShowMessageModal(false)}>
+                Ok
+              </Button>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
+      <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <Modal.Header> Bạn có chắc chắn muốn xóa ? </Modal.Header>
+        <Modal.Body>
+          <div className="space-y-6">
+            <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400"> Hành động này không thể hoàn tác! </p>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button color="failure" onClick={handleDeleteRoad}> Xóa </Button>
+          <Button color="gray" onClick={() => setIsModalOpen(false)}> Hủy </Button>
+        </Modal.Footer>
+      </Modal>
     </main>
   )
 }
