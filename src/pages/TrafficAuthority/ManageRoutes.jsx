@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Table, Button, Modal, Label, TextInput, Select } from 'flowbite-react'
 import GoogleMapReact from 'google-map-react'
 import Marker from '../../components/Marker'
-import { getRoads, createRoad, createRouter, updateRoad, deleteRoad } from '../../service/RouterAPI'
+import { getRoads, createRoad, createRouter, updateRoad, deleteRoad, updateRouter, deleteRouter } from '../../service/RouterAPI'
 import { FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 
@@ -15,8 +15,14 @@ const ManageRoutes = () => {
   const [mapCenter, setMapCenter] = useState({ lat: 15.983279, lng: 108.255955 })
   const [mapZoom, setMapZoom] = useState(14)
   const [isEditRoad, setIsEditRoad] = useState(false);
+  const [isEditRouter, setIsEditRouter] = useState(false);
   const [selectedUid, setSelectedUid] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+
+  const [isDeleteRoute, setIsDeleteRoute] = useState(null)
+  const [isDeleteRoad, setIsDeleteRoad] = useState(null)
+
 
   const [message, setMessage] = useState(null);
   const [showMessageModal, setShowMessageModal] = useState(false);
@@ -67,6 +73,37 @@ const ManageRoutes = () => {
     }
   }
 
+  const handleConfirmUpdateRouter = async () => {
+    try {
+      var formDta = {
+        route_name: routeData.route_name,
+        start_location: routeData.start_location,
+        end_location: routeData.end_location,
+        traffic_status: routeData.traffic_status,
+        connect_camera: routeData.connect_camera,
+        min_speed_route: routeData.min_speed_route,
+        max_speed_route: routeData.max_speed_route,
+        type_route: routeData.type_route,
+      }
+      const res = await updateRouter(formDta, routeData?._id);
+
+      // Cập nhật thông tin trong selectedRoad
+      setSelectedRoad((prevSelectedRoad) => ({
+        ...prevSelectedRoad,
+        routes: prevSelectedRoad.routes.map((route) =>
+          route._id === routeData._id ? { ...route, ...formDta } : route
+        ),
+      }));
+
+      setShowRouteModal(false);
+    } catch (error) {
+      setMessage(`Đã xảy ra lỗi không mong muốn. Vui lòng thử lại. ${error}`);
+      setShowMessageModal(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const handleLocationChange = (locationType, index, value) => {
     setRouteData((prevData) => ({
       ...prevData,
@@ -85,12 +122,31 @@ const ManageRoutes = () => {
     setRoadData(road);
   };
 
+  const handleUpdateRouter = async (router) => {
+    setIsEditRouter(true);
+    setShowRouteModal(true);
+    setRouteData(router);
+  };
+
+
   const handleShowModelAddRoad = () => {
     setIsEditRoad(false)
     setShowRoadModal(true)
   }
 
-  const handleDelete = (uid) => {
+  const handleShowModelAddRoute = () => {
+    setIsEditRouter(false)
+    setShowRouteModal(true)
+  }
+
+  const handleDelete = (uid, type) => {
+    if (type === "router") {
+      setIsDeleteRoute(true)
+      setIsDeleteRoad(false)
+    } else {
+      setIsDeleteRoad(true)
+      setIsDeleteRoute(false)
+    }
     setSelectedUid(uid);
     setIsModalOpen(true);
   }
@@ -106,6 +162,24 @@ const ManageRoutes = () => {
     }
   };
 
+  const handleDeleteRouter = async () => {
+    try {
+      const response = await deleteRouter(selectedUid);
+
+
+      // Cập nhật danh sách routes trong selectedRoad
+      setSelectedRoad((prevSelectedRoad) => ({
+        ...prevSelectedRoad,
+        routes: prevSelectedRoad.routes.filter((route) => route._id !== selectedUid),
+      }));
+
+      fetchTrafficRoads();
+      setIsModalOpen(false);
+    } catch (error) {
+      setMessage(`Đã xảy ra lỗi không mong muốn. Vui lòng thử lại. ${error}`);
+      setShowMessageModal(true);
+    }
+  };
 
   useEffect(() => {
     if (selectedRoad && selectedRoad.routes.length > 0) {
@@ -173,7 +247,7 @@ const ManageRoutes = () => {
                 <h2 className="text-xl mb-1 font-bold">Danh sách các tuyến đường</h2>
               </div>
               <div className="flex items-center">
-                <button className="relative inline-flex items-center justify-center p-0.5 mb-1 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800" onClick={() => setShowRouteModal(true)}>
+                <button className="relative inline-flex items-center justify-center p-0.5 mb-1 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800" onClick={() => handleShowModelAddRoute()}>
                   <span className="relative px-5 py-1 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
                     Add Route
                   </span>
@@ -204,7 +278,7 @@ const ManageRoutes = () => {
                     </Table.Cell>
                     <Table.Cell>
                       <button onClick={() => handleUpdateRoad(road)} className="w-6 h-6 text-black"><FaRegEdit /></button>
-                      <button onClick={() => handleDelete(road._id)} className="w-6 h-6 text-red-600"><MdDelete />
+                      <button onClick={() => handleDelete(road._id, "road")} className="w-6 h-6 text-red-600"><MdDelete />
                       </button>
                     </Table.Cell>
                   </Table.Row>
@@ -222,6 +296,7 @@ const ManageRoutes = () => {
                     <Table.HeadCell>Tình trạng tuyến đường</Table.HeadCell>
                     <Table.HeadCell>Tốc độ cho phép</Table.HeadCell>
                     <Table.HeadCell>Thể loại</Table.HeadCell>
+                    <Table.HeadCell>Hành động</Table.HeadCell>
                   </Table.Head>
                   <Table.Body className="divide-y">
                     {selectedRoad?.routes?.map((route) => (
@@ -232,6 +307,11 @@ const ManageRoutes = () => {
                         <Table.Cell>{route.traffic_status}</Table.Cell>
                         <Table.Cell>{route.min_speed_route} - {route.max_speed_route} (km/h)</Table.Cell>
                         <Table.Cell>{route.type_route}</Table.Cell>
+                        <Table.Cell>
+                          <button onClick={() => handleUpdateRouter(route)} className="w-6 h-6 text-black"><FaRegEdit /></button>
+                          <button onClick={() => handleDelete(route._id, "router")} className="w-6 h-6 text-red-600"><MdDelete />
+                          </button>
+                        </Table.Cell>
                       </Table.Row>
                     ))}
                   </Table.Body>
@@ -317,6 +397,18 @@ const ManageRoutes = () => {
                     />
                   </div>
                   <div>
+                    <Label htmlFor="connect_camera">Kết nối camera</Label>
+                    <Select
+                      id="connect_camera"
+                      name="connect_camera"
+                      value={routeData.connect_camera}
+                      onChange={handleChangeDataRouter}
+                    >
+                      <option value="false">Không kết nối</option>
+                      <option value="true">Có kết nối</option>
+                    </Select>
+                  </div>
+                  <div>
                     <Label htmlFor="traffic_status">Trạng thái tuyến đường</Label>
                     <Select
                       id="traffic_status"
@@ -327,6 +419,8 @@ const ManageRoutes = () => {
                       <option value="Bình Thường">Bình Thường</option>
                       <option value="Ùn Tắc">Ùn Tắc</option>
                       <option value="Tai Nạn">Tai Nạn</option>
+                      <option value="Tắc đường nhẹ">Tắc đường nhẹ</option>
+                      <option value="Tắc đường nặng">Tắc đường nặng</option>
                     </Select>
                   </div>
                   <div>
@@ -346,7 +440,7 @@ const ManageRoutes = () => {
               <Modal.Footer>
                 <div className="flex items-center justify-center w-full gap-16">
                   <Button className="bg-[#B80707] text-white w-32" onClick={() => setShowRouteModal(false)}> Hủy </Button>
-                  <Button className='bg-[#4B49AC] text-white w-32' onClick={handleAddRoute}> Tạo </Button>
+                  <Button className='bg-[#4B49AC] text-white w-32' onClick={isEditRouter ? handleConfirmUpdateRouter : handleAddRoute}>{isEditRouter ? "Cập Nhật" : "Tạo"}</Button>
                 </div>
               </Modal.Footer>
             </Modal>
@@ -426,7 +520,7 @@ const ManageRoutes = () => {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button color="failure" onClick={handleDeleteRoad}> Xóa </Button>
+          <Button color="failure" onClick={isDeleteRoad ? handleDeleteRoad : handleDeleteRouter}> Xóa </Button>
           <Button color="gray" onClick={() => setIsModalOpen(false)}> Hủy </Button>
         </Modal.Footer>
       </Modal>

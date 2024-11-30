@@ -35,12 +35,31 @@ export const updateRoad = async (data, id) => {
     }
 }
 
+export const updateRouter = async (data, id) => {
+    try {
+        const res = await axios.put(`/api/traffic_route/update_traffic_route/${id}`, data);
+        return res;
+    } catch (error) {
+        throw new Error('Failed to fetch update router');
+    }
+}
+
+
 export const deleteRoad= async (id) => {
     try {
         const res = await axios.delete(`/api/traffic_route/delete_traffic_road/${id}`);
         return res;
     } catch (error) {
         throw new Error('Failed to fetch delete road');
+    }
+}
+
+export const deleteRouter= async (id) => {
+    try {
+        const res = await axios.delete(`/api/traffic_route/delete_traffic_route/${id}`);
+        return res;
+    } catch (error) {
+        throw new Error('Failed to fetch delete router');
     }
 }
 
